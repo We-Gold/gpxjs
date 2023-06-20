@@ -1,5 +1,6 @@
 {
 	"name": "@we-gold/gpxjs",
+	"author": "Weaver Goldman <we.goldm@gmail.com>",
 	"description": "GPX.js is a modern library for parsing GPX files and converting them to GeoJSON.",
 	"version": "1.0.0",
 	"type": "module",
