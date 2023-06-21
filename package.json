@@ -2,13 +2,30 @@
 	"name": "@we-gold/gpxjs",
 	"author": "Weaver Goldman <we.goldm@gmail.com>",
 	"description": "GPX.js is a modern library for parsing GPX files and converting them to GeoJSON.",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/We-Gold/gpxjs"
+	},
+	"bugs": {
+		"url": "https://github.com/We-Gold/gpxjs/issues"
+	},
+	"keywords": [
+		"gpx",
+		"geojson",
+		"typescript",
+		"geolocation",
+		"apple-watch",
+		"gps"
+	],
 	"files": [
 		"dist"
 	],
 	"main": "./dist/gpxjs.umd.cjs",
 	"module": "./dist/gpxjs.js",
+	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
 			"import": "./dist/gpxjs.js",
@@ -18,11 +35,14 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
+		"pack-test": "npm pack --dry-run",
 		"preview": "vite preview"
 	},
 	"devDependencies": {
+		"@types/node": "^20.3.1",
 		"typescript": "^5.0.2",
-		"vite": "^4.3.9"
+		"vite": "^4.3.9",
+		"vite-plugin-dts": "^2.3.0"
 	},
 	"prettier": {
 		"trailingComma": "es5",

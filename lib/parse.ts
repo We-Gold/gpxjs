@@ -10,9 +10,13 @@ import { ParsedGPXInputs, Point, Route, Track, Waypoint } from "./types"
  * Converts the given GPX XML to a JavaScript Object with the ability to convert to GeoJSON.
  *
  * @param gpxSource A string containing the source GPX XML
+ * @param CustomDOMParser An optional DOM Parser object for non-browser contexts
  * @returns A ParsedGPX with all of the parsed data and a method to convert to GeoJSON
  */
-export const parseGPX = (gpxSource: string) => {
+export const parseGPX = (
+	gpxSource: string,
+	CustomDOMParser: { new (): DOMParser; prototype: DOMParser } | null = null
+) => {
 	const output: ParsedGPXInputs = {
 		xml: new Document(),
 		metadata: {
@@ -28,7 +32,8 @@ export const parseGPX = (gpxSource: string) => {
 	}
 
 	// Initialize a parser object to parse the xml input
-	const domParser = new DOMParser()
+	const domParserClass = CustomDOMParser ?? window.DOMParser
+	const domParser = new domParserClass()
 	output.xml = domParser.parseFromString(gpxSource, "text/xml")
 
 	const metadata = output.xml.querySelector("metadata")

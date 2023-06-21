@@ -2,10 +2,6 @@
 
 Based on [GPXParser.js](https://github.com/Luuka/GPXParser.js), which has been unmaintained, this updated library is intended to bring modern JavaScript features to GPX parsing, including extensions in tracks and fully featured typescript support.
 
-**This library currently does not include support for non-browser execution.** If you are interested in creating a pull request, that would be helpful.
-
-Right now, to use this in Node.js without a browser, you will need to use `jsdom`'s `DOMParser`, making it a global object.
-
 _I'm also open to any improvements or suggestions with the library, so feel free to leave an issue._
 
 ## GPX Schema
@@ -13,6 +9,14 @@ _I'm also open to any improvements or suggestions with the library, so feel free
 The schema for GPX, a commonly used gps tracking format, can be found here: [GPX 1.1](https://www.topografix.com/gpx.asp).
 
 # Usage
+
+**This library currently does not include support for non-browser execution.** If you are interested in creating a pull request, that would be helpful.
+
+Right now, to use this in Node.js without a browser, you will need to use `jsdom`'s `DOMParser`, making it a global object.
+
+To use it in something like React Native, use `jsdom-jscore-rn` instead.
+
+See instructions below on how to use a custom DOM parser.
 
 ### Install using NPM
 
@@ -76,6 +80,17 @@ const extensions = gpx.tracks[1].extensions
 
 ```js
 const geoJSON = parsedGPX.toGeoJSON()
+```
+
+### Using a Custom DOM Parser
+
+If working in an environment where a custom DOM Parser is required, you can include it like so:
+
+```js
+import { parseGPX } from "@we-gold/gpxjs"
+import { DOMParser } from "mycustompackage"
+
+const parsedFile = parseGPX(myXMLGPXString, DOMParser)
 ```
 
 # Documentation
