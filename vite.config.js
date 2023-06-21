@@ -10,9 +10,9 @@ export default defineConfig({
     build: {
         minify: 'esbuild',
         lib: {
-        entry: resolve(__dirname, 'lib/index.ts'),
-        name: 'gpxjs',
-        fileName: 'gpxjs',
+            entry: resolve(__dirname, 'lib/index.ts'),
+            name: 'gpxjs',
+            fileName: 'gpxjs',
         }
     },
     plugins: [dts()]
