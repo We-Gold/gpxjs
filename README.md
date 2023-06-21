@@ -16,12 +16,12 @@ The schema for GPX, a commonly used gps tracking format, can be found here: [GPX
 
 ### Install using NPM
 
-`npm install --save gpxjs`
+`npm i @we-gold/gpxjs`
 
 Then, import the `parseGPX` method:
 
 ```js
-import { parseGPX } from "gpxjs"
+import { parseGPX } from "@we-gold/gpxjs"
 
 const parsedFile = parseGPX(myXMLGPXString)
 
@@ -33,7 +33,7 @@ const geojson = parsedFile.toGeoJSON()
 In an HTML document:
 
 ```html
-<script src="./src/gpxjs.min.js"></script>
+<script src="./src/gpxjs.js"></script>
 
 <script type="module">
 	import { parseGPX } from "gpxjs"
@@ -49,7 +49,7 @@ In an HTML document:
 While this feature isn't included, it is fairly simple to fetch a GPX file and format it as a string.
 
 ```js
-import { parseGPX } from "gpxjs"
+import { parseGPX } from "@we-gold/gpxjs"
 
 fetch("./somefile.gpx")
 	.then((response) => {
