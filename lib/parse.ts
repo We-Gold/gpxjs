@@ -247,10 +247,17 @@ export const parseGPXWithCustomParser = (
 				const extensions: any = {}
 
 				// Store all available extensions as numbers
-				for (const extension of extensionsElement.childNodes) {
+				for (const extension of Array.from(
+					extensionsElement.childNodes
+				)) {
 					const name = extension.nodeName
+
+					// Parse the extension data with support for the browser or an xml parser
 					extensions[name] = parseFloat(
-						(extension as Element).innerHTML
+						(extension as Element).innerHTML != undefined
+							? (extension as Element).innerHTML
+							: (extension as Element).childNodes[0]
+									.textContent ?? ""
 					)
 				}
 
@@ -315,7 +322,7 @@ const queryDirectSelector = (parent: Element, tag: string): Element | null => {
 		const directChildren = parent.childNodes
 
 		// Find all nodes that match the given tag within the parent
-		for (const child of directChildren) {
+		for (const child of Array.from(directChildren)) {
 			if ((child as Element).tagName === tag.toUpperCase()) {
 				finalElem = child as Element
 			}

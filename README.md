@@ -12,9 +12,7 @@ The schema for GPX, a commonly used gps tracking format, can be found here: [GPX
 
 **This library currently does not include support for non-browser execution.**
 
-Right now, to use this in Node.js without a browser, you will need to use `jsdom`'s `DOMParser`.
-
-To use it in something like React Native, use [`advanced-html-parser`](https://github.com/AlenToma/advanced-html-parser/tree/main) instead.
+Right now, to use this in Node.js without a browser or in something like React Native, use [`xmldom-qsa`](https://www.npmjs.com/package/xmldom-qsa) instead.
 
 See instructions below on [how to use a custom DOM parser](#using-a-custom-dom-parser).
 
@@ -98,11 +96,10 @@ If working in an environment where a custom DOM Parser is required, you can incl
 
 ```js
 import { parseGPXWithCustomParser } from "@we-gold/gpxjs"
-import { DOMParser } from "mycustompackage"
+import { DOMParser } from "xmldom-qsa"
 
-const customParseMethod = (myGPXString) => {
-	const parser = new DOMParser()
-	return parser.parseFromString(myGPXString, "text/xml")
+const customParseMethod = (txt: string): Document | null => {
+	return new DOMParser().parseFromString(txt, "text/xml")
 }
 
 const [parsedFile, error] = parseGPXWithCustomParser(

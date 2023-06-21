@@ -15,5 +15,9 @@ export default defineConfig({
             fileName: 'gpxjs',
         }
     },
-    plugins: [dts()]
+    plugins: [dts()],
+    define: {
+        // Shim required for using the custom parser
+        global: {},
+    },
 })
