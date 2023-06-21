@@ -10,15 +10,41 @@ import { ParsedGPXInputs, Point, Route, Track, Waypoint } from "./types"
  * Converts the given GPX XML to a JavaScript Object with the ability to convert to GeoJSON.
  *
  * @param gpxSource A string containing the source GPX XML
- * @param CustomDOMParser An optional DOM Parser object for non-browser contexts
  * @returns A ParsedGPX with all of the parsed data and a method to convert to GeoJSON
  */
-export const parseGPX = (
+export const parseGPX = (gpxSource: string) => {
+	const parseMethod = (gpxSource: string): Document | null => {
+		// Verify that we are in a browser
+		if (typeof document == undefined) return null
+
+		const domParser = new window.DOMParser()
+		return domParser.parseFromString(gpxSource, "text/xml")
+	}
+
+	return parseGPXWithCustomParser(gpxSource, parseMethod)
+}
+
+/**
+ * Converts the given GPX XML to a JavaScript Object with the ability to convert to GeoJSON.
+ * This uses a **custom** method supplied by the user. This is most applicable to non-browser environments.
+ *
+ * @param gpxSource A string containing the source GPX XML
+ * @param parseGPXToXML An optional method that parses gpx to a usable XML format
+ * @returns A ParsedGPX with all of the parsed data and a method to convert to GeoJSON
+ */
+export const parseGPXWithCustomParser = (
 	gpxSource: string,
-	CustomDOMParser: { new (): DOMParser; prototype: DOMParser } | null = null
-) => {
+	parseGPXToXML: (gpxSource: string) => Document | null
+): [null, Error] | [ParsedGPX, null] => {
+	// Parse the GPX string using the given parse method
+	const parsedSource = parseGPXToXML(gpxSource)
+
+	// Verify that the parsed data is present
+	if (parsedSource === null)
+		return [null, new Error("Provided parsing method failed.")]
+
 	const output: ParsedGPXInputs = {
-		xml: new Document(),
+		xml: parsedSource,
 		metadata: {
 			name: "",
 			description: "",
@@ -30,11 +56,6 @@ export const parseGPX = (
 		tracks: [],
 		routes: [],
 	}
-
-	// Initialize a parser object to parse the xml input
-	const domParserClass = CustomDOMParser ?? window.DOMParser
-	const domParser = new domParserClass()
-	output.xml = domParser.parseFromString(gpxSource, "text/xml")
 
 	const metadata = output.xml.querySelector("metadata")
 	if (metadata !== null) {
@@ -252,7 +273,7 @@ export const parseGPX = (
 		output.tracks.push(track)
 	}
 
-	return new ParsedGPX(output)
+	return [new ParsedGPX(output), null]
 }
 
 /**

@@ -10,13 +10,13 @@ The schema for GPX, a commonly used gps tracking format, can be found here: [GPX
 
 # Usage
 
-**This library currently does not include support for non-browser execution.** If you are interested in creating a pull request, that would be helpful.
+**This library currently does not include support for non-browser execution.**
 
-Right now, to use this in Node.js without a browser, you will need to use `jsdom`'s `DOMParser`, making it a global object.
+Right now, to use this in Node.js without a browser, you will need to use `jsdom`'s `DOMParser`.
 
-To use it in something like React Native, use `jsdom-jscore-rn` instead.
+To use it in something like React Native, use [`advanced-html-parser`](https://github.com/AlenToma/advanced-html-parser/tree/main) instead.
 
-See instructions below on how to use a custom DOM parser.
+See instructions below on [how to use a custom DOM parser](#using-a-custom-dom-parser).
 
 ### Install using NPM
 
@@ -27,7 +27,10 @@ Then, import the `parseGPX` method:
 ```js
 import { parseGPX } from "@we-gold/gpxjs"
 
-const parsedFile = parseGPX(myXMLGPXString)
+const [parsedFile, error] = parseGPX(myXMLGPXString)
+
+// Or use a try catch to verify
+if (error) throw error
 
 const geojson = parsedFile.toGeoJSON()
 ```
@@ -40,9 +43,12 @@ In an HTML document:
 <script src="./src/gpxjs.js"></script>
 
 <script type="module">
-	import { parseGPX } from "gpxjs"
+	import { parseGPX } from "@we-gold/gpxjs"
 
-	const parsedFile = parseGPX(myXMLGPXString)
+	const [parsedFile, error] = parseGPX(myXMLGPXString)
+
+	// Or use a try catch to verify
+	if (error) throw error
 
 	const geojson = parsedFile.toGeoJSON()
 </script>
@@ -63,8 +69,12 @@ fetch("./somefile.gpx")
 		return response.text()
 	})
 	.then((data) => {
-		const parsedFile = parseGPX(data)
-		console.log(parsedFile)
+		const [parsedFile, error] = parseGPX(data)
+
+		// Or use a try catch to verify
+		if (error) throw error
+
+		const geojson = parsedFile.toGeoJSON()
 	})
 ```
 
@@ -87,10 +97,18 @@ const geoJSON = parsedGPX.toGeoJSON()
 If working in an environment where a custom DOM Parser is required, you can include it like so:
 
 ```js
-import { parseGPX } from "@we-gold/gpxjs"
+import { parseGPXWithCustomParser } from "@we-gold/gpxjs"
 import { DOMParser } from "mycustompackage"
 
-const parsedFile = parseGPX(myXMLGPXString, DOMParser)
+const customParseMethod = (myGPXString) => {
+	const parser = new DOMParser()
+	return parser.parseFromString(myGPXString, "text/xml")
+}
+
+const [parsedFile, error] = parseGPXWithCustomParser(
+	myXMLGPXString,
+	customParseMethod
+)
 ```
 
 # Documentation

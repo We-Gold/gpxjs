@@ -11,7 +11,10 @@ fetch("./src/test_files/test.gpx")
 		let startTime = performance.now()
 
 		// Parse the test file
-		const parsedGPX = parseGPX(textData)
+		const [parsedGPX, error] = parseGPX(textData)
+
+		// Verify that the parsing was successful
+		if (error) throw error
 
 		let endTime = performance.now()
 		console.log("Execution time:", endTime - startTime, "ms")
