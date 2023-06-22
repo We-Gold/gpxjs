@@ -94,6 +94,8 @@ const geoJSON = parsedGPX.toGeoJSON()
 
 If working in an environment where a custom DOM Parser is required, you can include it like so:
 
+_Note, this is significantly slower than using the browser parser._
+
 ```js
 import { parseGPXWithCustomParser } from "@we-gold/gpxjs"
 import { DOMParser } from "xmldom-qsa"
