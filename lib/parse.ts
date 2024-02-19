@@ -250,6 +250,9 @@ export const parseGPXWithCustomParser = (
 				for (const extension of Array.from(
 					extensionsElement.childNodes
 				)) {
+					// Skip non-element nodes
+					if (extension.nodeType !== 1) continue
+
 					const name = extension.nodeName
 
 					// Parse the extension data with support for the browser or an xml parser
