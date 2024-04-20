@@ -50,9 +50,7 @@ export type Point = {
 	longitude: number
 	elevation: number | null
 	time: Date | null
-	extensions: {
-		[key: string]: number
-	} | null
+	extensions: Extensions | null
 }
 
 export type Distance = {
@@ -119,4 +117,8 @@ export type GeoJSON = {
 	type: string
 	features: (Feature | WaypointFeature)[]
 	properties: MetaData
+}
+
+export type Extensions = {
+	[key: string]: string | number | Extensions
 }

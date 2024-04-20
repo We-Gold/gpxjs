@@ -4,7 +4,14 @@ import {
 	calculateSlopes,
 } from "./math_helpers"
 import { ParsedGPX } from "./parsed_gpx"
-import { ParsedGPXInputs, Point, Route, Track, Waypoint } from "./types"
+import {
+	ParsedGPXInputs,
+	Point,
+	Route,
+	Track,
+	Waypoint,
+	Extensions,
+} from "./types"
 
 /**
  * Converts the given GPX XML to a JavaScript Object with the ability to convert to GeoJSON.
@@ -244,26 +251,12 @@ export const parseGPXWithCustomParser = (
 			// Parse any extensions and store them in an object
 			const extensionsElement = trackPoint.querySelector("extensions")
 			if (extensionsElement !== null) {
-				const extensions: any = {}
-
-				// Store all available extensions as numbers
-				for (const extension of Array.from(
+				let extensions: Extensions = {}
+				extensions = parseExtensions(
+					extensions,
 					extensionsElement.childNodes
-				)) {
-					// Skip non-element nodes
-					if (extension.nodeType !== 1) continue
-
-					const name = extension.nodeName
-
-					// Parse the extension data with support for the browser or an xml parser
-					extensions[name] = parseFloat(
-						(extension as Element).innerHTML != undefined
-							? (extension as Element).innerHTML
-							: (extension as Element).childNodes[0]
-									.textContent ?? ""
-					)
-				}
-
+				)
+				// Store all available extensions as numbers
 				point.extensions = extensions
 			}
 
@@ -284,6 +277,36 @@ export const parseGPXWithCustomParser = (
 	}
 
 	return [new ParsedGPX(output), null]
+}
+
+const parseExtensions = (
+	extensions: Extensions,
+	extensionChildredCollection: NodeListOf<ChildNode>
+) => {
+	Array.from(extensionChildredCollection)
+		.filter((child: ChildNode) => child.nodeType === 1)
+		.forEach((child: ChildNode) => {
+			const tagName = child.nodeName
+			if (
+				child.childNodes?.length === 1 &&
+				child.childNodes[0].nodeType === 3 &&
+				child.childNodes[0].textContent
+			) {
+				const textContent = child.childNodes[0].textContent.trim()
+				const value = isNaN(+textContent)
+					? parseFloat(textContent)
+					: textContent
+				extensions[tagName] = value
+			} else {
+				extensions[tagName] = {}
+				extensions[tagName] = parseExtensions(
+					extensions[tagName] as Extensions,
+					child.childNodes
+				)
+			}
+		})
+
+	return extensions
 }
 
 /**
