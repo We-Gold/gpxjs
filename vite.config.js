@@ -15,6 +15,13 @@ export default defineConfig({
             fileName: 'gpxjs',
         }
     },
+    test: {
+        browser: {
+          enabled: true,
+          name: 'chrome',
+          headless: true,
+        },
+    },
     plugins: [dts()],
     define: {
         // Shim required for using the custom parser
