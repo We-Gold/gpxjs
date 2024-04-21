@@ -46,7 +46,7 @@ export const testGPXFile =
         <src>GPX Test Device</src>
         <number>1</number>
         <link href="https://test.com">
-            <text>Author Website</text>
+            <text>Track Website</text>
             <type>Web</type>
         </link>
         <type>MTB</type>
@@ -72,7 +72,7 @@ export const testGPXFile =
         <src>GPX Test Device</src>
         <number>1</number>
         <link href="https://test.com">
-            <text>Author Website</text>
+            <text>Route Website</text>
             <type>Web</type>
         </link>
         <type>MTB</type>

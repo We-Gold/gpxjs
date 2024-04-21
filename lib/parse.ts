@@ -151,7 +151,7 @@ export const parseGPXWithCustomParser = (
 		}
 
 		const type = querySelectDirectDescendant(routeElement, "type")
-		route.type = type !== null ? type.innerHTML : null
+		route.type = type?.innerHTML ?? type?.textContent ?? null
 
 		// Parse and store the link and its associated data
 		const linkElement = routeElement.querySelector("link")
@@ -218,7 +218,7 @@ export const parseGPXWithCustomParser = (
 		}
 
 		const type = querySelectDirectDescendant(trackElement, "type")
-		track.type = type !== null ? type.innerHTML : null
+		track.type = type?.innerHTML ?? type?.textContent ?? null
 
 		// Parse and store the link and its associated data
 		const linkElement = trackElement.querySelector("link")
@@ -317,5 +317,18 @@ const querySelectDirectDescendant = (
 	parent: Element,
 	tag: string
 ): Element | null => {
-	return parent.querySelector(`:scope > ${tag}`)
+	try {
+		// Find the first direct matching direct descendent
+		const result = parent.querySelector(`:scope > ${tag}`)
+		return result
+	} catch (e) {
+		// Handle non-browser or older environments that don't support :scope
+		if (parent.childNodes) {
+			return (
+				(Array.from(parent.childNodes) as Element[]).find(
+					(element) => element.tagName == tag
+				) ?? null
+			)
+		} else return null
+	}
 }
