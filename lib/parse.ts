@@ -294,8 +294,8 @@ const parseExtensions = (
 			) {
 				const textContent = child.childNodes[0].textContent.trim()
 				const value = isNaN(+textContent)
-					? parseFloat(textContent)
-					: textContent
+					? textContent
+					: parseFloat(textContent)
 				extensions[tagName] = value
 			} else {
 				extensions[tagName] = {}
