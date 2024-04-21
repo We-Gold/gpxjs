@@ -281,9 +281,9 @@ export const parseGPXWithCustomParser = (
 
 const parseExtensions = (
 	extensions: Extensions,
-	extensionChildredCollection: NodeListOf<ChildNode>
+	extensionChildrenCollection: NodeListOf<ChildNode>
 ) => {
-	Array.from(extensionChildredCollection)
+	Array.from(extensionChildrenCollection)
 		.filter((child: ChildNode) => child.nodeType === 1)
 		.forEach((child: ChildNode) => {
 			const tagName = child.nodeName
