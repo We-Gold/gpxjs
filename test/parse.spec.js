@@ -72,7 +72,7 @@ test("Default parsing returns expected result", () => {
         description: "Test track",
         src: "GPX Test Device",
         number: "1",
-        type: "MTB", // TODO fix this issue
+        type: "MTB",
         link: {
             href: "https://test.com",
             text: "Track Website",
@@ -109,7 +109,7 @@ test("Default parsing returns expected result", () => {
     }
 
     expect(track).not.toBeNull()
-    // expect(track).toStrictEqual(expectedTrack)  
+    expect(track).toStrictEqual(expectedTrack)  
     
     // Test route information
     const route = parsedGPX.routes[0]
@@ -220,7 +220,7 @@ test("Non-browser parsing returns expected result", () => {
         description: "Test track",
         src: "GPX Test Device",
         number: "1",
-        type: "MTB", // TODO fix this issue
+        type: "MTB",
         link: {
             href: "https://test.com",
             text: "Track Website",
@@ -257,7 +257,7 @@ test("Non-browser parsing returns expected result", () => {
     }
 
     expect(track).not.toBeNull()
-    // expect(track).toStrictEqual(expectedTrack)  
+    expect(track).toStrictEqual(expectedTrack)  
     
     // Test route information
     const route = parsedGPX.routes[0]
