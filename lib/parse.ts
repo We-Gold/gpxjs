@@ -92,7 +92,7 @@ export const parseGPXWithCustomParser = (
 		}
 
 		// Parse and store the link element and its associated data
-		const linkElement = queryDirectSelector(metadata, "link")
+		const linkElement = querySelectDirectDescendant(metadata, "link")
 		if (linkElement !== null) {
 			output.metadata.link = {
 				href: linkElement.getAttribute("href") ?? "",
@@ -150,7 +150,7 @@ export const parseGPXWithCustomParser = (
 			slopes: [],
 		}
 
-		const type = queryDirectSelector(routeElement, "type")
+		const type = querySelectDirectDescendant(routeElement, "type")
 		route.type = type !== null ? type.innerHTML : null
 
 		// Parse and store the link and its associated data
@@ -217,7 +217,7 @@ export const parseGPXWithCustomParser = (
 			slopes: [],
 		}
 
-		const type = queryDirectSelector(trackElement, "type")
+		const type = querySelectDirectDescendant(trackElement, "type")
 		track.type = type !== null ? type.innerHTML : null
 
 		// Parse and store the link and its associated data
@@ -306,31 +306,16 @@ const getElementValue = (parent: Element, tag: string): string => {
 }
 
 /**
- * Finds a specific, known element within the given parent element.
+ * Find a direct descendent of the given element. If it is nested more than one layer down,
+ * it will not be found.
  *
  * @param parent A parent element to search within
  * @param tag The tag of the child element to search for
  * @returns The desired inner element
  */
-const queryDirectSelector = (parent: Element, tag: string): Element | null => {
-	const elements = parent.querySelectorAll(tag)
-
-	// End immediately if there are no matching elements
-	if (elements.length === 0) return null
-
-	let finalElem = elements[0]
-
-	// Find the last node that fits the given tag within the parent
-	if (elements.length > 1) {
-		const directChildren = parent.childNodes
-
-		// Find all nodes that match the given tag within the parent
-		for (const child of Array.from(directChildren)) {
-			if ((child as Element).tagName === tag.toUpperCase()) {
-				finalElem = child as Element
-			}
-		}
-	}
-
-	return finalElem
+const querySelectDirectDescendant = (
+	parent: Element,
+	tag: string
+): Element | null => {
+	return parent.querySelector(`:scope > ${tag}`)
 }

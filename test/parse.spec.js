@@ -11,9 +11,7 @@ import { testGPXFile } from "./test-gpx-file"
 // Parse some times as dates and some as strings
 // Some items match abbreviations, some don't
 
-// TODO test based on some object rather than manually entering fields
-
-test("Parsing returns expected result", () => {
+test("Default parsing returns expected result", () => {
 	const [parsedGPX, error] = parseGPX(testGPXFile)
 
 	// Verify that the parsing was successful
@@ -22,83 +20,134 @@ test("Parsing returns expected result", () => {
     assertType<XMLDocument>(parsedGPX.xml)
 
     // Test metadata from test file
-    expect(parsedGPX.metadata.name).toBe("GPX Test")
-    expect(parsedGPX.metadata.description).toBe("Test Description")
-    expect(parsedGPX.metadata.time).toBe("2020-01-12T21:32:52")
-    // TODO fix non-author link parsing
-    // expect(parsedGPX.metadata.link.href).toBe("https://test2.com")
-    // expect(parsedGPX.metadata.link.text).toBe("General Website")
-    // expect(parsedGPX.metadata.link.type).toBe("Web") 
+    const expectedMetadata = {
+        name: "GPX Test",
+        description: "Test Description",
+        time: "2020-01-12T21:32:52",
+        link: {
+            href: "https://test2.com",
+            text: "General Website",
+            type: "Web"
+        },
+        author: {
+            name: "Test Author",
+            email: {
+                id: "test",
+                domain: "test.com",
+            },
+            link: {
+                href: "https://test.com",
+                text: "Author Website",
+                type: "Web"
+            }
+        },
+    }
 
-    // Test author metadata
-    expect(parsedGPX.metadata.author.name).toBe("Test Author")
-    expect(parsedGPX.metadata.author.email.id).toBe("test")
-    expect(parsedGPX.metadata.author.email.domain).toBe("test.com")
-    expect(parsedGPX.metadata.author.link.href).toBe("https://test.com")
-    expect(parsedGPX.metadata.author.link.text).toBe("Author Website")
-    expect(parsedGPX.metadata.author.link.type).toBe("Web")
+    expect(expectedMetadata).toStrictEqual(parsedGPX.metadata)  
 
     // Test waypoint data
     const waypoint = parsedGPX.waypoints[0]
 
+    const expectedWaypoint = {
+        name: "Porte de Carquefou",
+        symbol: "",
+        latitude: 47.253146555709,
+        longitude: -1.5153741828293,
+        elevation: 35,
+        comment: "Warning",
+        description: "Route",
+        time: new Date("2020-02-02T07:54:30.000Z")
+    }
+
     expect(waypoint).not.toBeNull()
-    expect(waypoint.name).toBe("Porte de Carquefou")
-    expect(waypoint.symbol).toBe("")
-    expect(waypoint.latitude).toBeCloseTo(47.253146555709)
-    expect(waypoint.longitude).toBeCloseTo(-1.5153741828293)
-    expect(waypoint.elevation).toBeCloseTo(35)
-    expect(waypoint.comment).toBe("Warning")
-    expect(waypoint.description).toBe("Route")
-    expect(waypoint.time).toEqual(new Date("2020-02-02T07:54:30.000Z"))    
+    expect(waypoint).toStrictEqual(expectedWaypoint)  
 
     // Test track information
     const track = parsedGPX.tracks[0]
 
+    const expectedTrack = {
+        name: "Track",
+        comment: "Bridge",
+        description: "Test track",
+        src: "GPX Test Device",
+        number: "1",
+        type: "MTB", // TODO fix this issue
+        link: {
+            href: "https://test.com",
+            text: "Author Website",
+            type: "Web"
+        },
+        distance: {
+            cumulative: [0],
+            total: 0,
+        },
+        elevation: {
+            average: 12.36,
+            maximum: 12.36,
+            minimum: 12.36,
+            positive: null, // TODO is this correct?
+            negative: null,
+        },
+        points: [
+            {
+                elevation: 12.36,
+                extensions: {
+                    floatext: 1.75,
+                    intext: 3,
+                    strext: "testString",
+                    subext: {
+                        subval: 33
+                    },
+                },
+                latitude: 47.2278526991611,
+                longitude: -1.5521714646550901,
+                time: new Date("2020-02-02T07:54:30.000Z"),
+            }
+        ],
+        slopes: [],
+    }
+
     expect(track).not.toBeNull()
-    expect(track.name).toBe("Track")
-    expect(track.comment).toBe("Bridge")
-    expect(track.description).toBe("Test track")
-    expect(track.src).toBe("GPX Test")
-    expect(track.number).toBe("1")
-    expect(track.type).toBe("Web")
-    expect(track.link.href).toBe("https://test.com")
-    expect(track.link.text).toBe("Author Website")
-    expect(track.link.type).toBe("Web")
-
-    // Test track point information
-    const point = track.points[0]
-
-    expect(point).not.toBeNull()
-    expect(point.latitude).toBeCloseTo(47.2278526991611)
-    expect(point.longitude).toBeCloseTo(-1.5521714646550901)
-    expect(point.elevation).toBeCloseTo(12.36)
-    expect(point.time).toEqual(new Date("2020-02-02T07:54:30.000Z"))    
-    // expect(point.extensions.strext).toBe("testString")    
-    expect(point.extensions.intext).toBe(3)    
-    expect(point.extensions.floatext).toBe(1.75)    
-    // expect(point.extensions.subtext.subval).toBeCloseTo(33)    
-
+    // expect(track).toStrictEqual(expectedTrack)  
+    
     // Test route information
-    console.log(parsedGPX.routes)
-
     const route = parsedGPX.routes[0]
 
+    const expectedRoute = {
+        name: "Track",
+        comment: "Bridge",
+        description: "Test route",
+        src: "GPX Test Device",
+        number: "1",
+        type: "MTB",
+        link: {
+            href: "https://test.com",
+            text: "Author Website",
+            type: "Web"
+        },
+        distance: {
+            cumulative: [0],
+            total: 0,
+        },
+        elevation: {
+            average: 12.36,
+            maximum: 12.36,
+            minimum: 12.36,
+            positive: null, // TODO is this correct?
+            negative: null,
+        },
+        points: [
+            {
+                latitude: 47.2278526991611,
+                longitude: -1.5521714646550901,
+                elevation: 12.36,
+                time: new Date("2020-02-02T07:54:30.000Z"),
+                extensions: null,
+            },
+        ],
+        slopes: [],
+    }
+
     expect(route).not.toBeNull()
-    expect(route.name).toBe("Track")
-    expect(route.comment).toBe("Bridge")
-    expect(route.description).toBe("Test track")
-    expect(route.src).toBe("GPX Test")
-    expect(route.number).toBe("1")
-    expect(route.type).toBe("Web")
-    expect(route.link.href).toBe("https://test.com")
-    expect(route.link.text).toBe("Author Website")
-    expect(route.link.type).toBe("Web")
-
-    const routePoint = route.points[0]
-
-    expect(routePoint).not.toBeNull()
-    expect(routePoint.latitude).toBeCloseTo(47.2278526991611)
-    expect(routePoint.longitude).toBeCloseTo(-1.5521714646550901)
-    expect(routePoint.elevation).toBeCloseTo(12.36)
-    expect(routePoint.time).toEqual(new Date("2020-02-02T07:54:30.000Z"))    
+    expect(route).toStrictEqual(expectedRoute)  
 })

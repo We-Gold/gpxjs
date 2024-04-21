@@ -43,7 +43,7 @@ export const testGPXFile =
         <name>Track</name>
         <cmt>Bridge</cmt>
         <desc>Test track</desc>
-        <src>GPX Test</src>
+        <src>GPX Test Device</src>
         <number>1</number>
         <link href="https://test.com">
             <text>Author Website</text>
@@ -58,33 +58,9 @@ export const testGPXFile =
                     <strext>testString</strext>
                     <intext>3</intext>
                     <floatext>1.75</floatext>
-                    <subtext>
+                    <subext>
                         <subval>33.0</subval>
-                    </subtext>
-                </extensions>
-            </trkpt>
-            <trkpt lat="47.229236980562256" lon="-1.5504753767742476">
-                <ele>7.08</ele>
-                <time>2020-02-02T07:54:30Z</time>
-                <extensions>
-                    <strext>testString</strext>
-                    <intext>3</intext>
-                    <floatext>1.75</floatext>
-                    <subtext>
-                        <subval>33.0</subval>
-                    </subtext>
-                </extensions>
-            </trkpt>
-            <trkpt lat="47.2301112449252" lon="-1.5493804339650867">
-                <ele>7.07</ele>
-                <time>2020-02-02T07:54:30Z</time>
-                <extensions>
-                    <strext>testString</strext>
-                    <intext>3</intext>
-                    <floatext>1.75</floatext>
-                    <subtext>
-                        <subval>33.0</subval>
-                    </subtext>
+                    </subext>
                 </extensions>
             </trkpt>
         </trkseg>
@@ -92,8 +68,8 @@ export const testGPXFile =
     <rte>
         <name>Track</name>
         <cmt>Bridge</cmt>
-        <desc>Test track</desc>
-        <src>GPX Test</src>
+        <desc>Test route</desc>
+        <src>GPX Test Device</src>
         <number>1</number>
         <link href="https://test.com">
             <text>Author Website</text>
@@ -102,14 +78,6 @@ export const testGPXFile =
         <type>MTB</type>
         <rtept lat="47.2278526991611" lon="-1.5521714646550901">
             <ele>12.36</ele>
-            <time>2020-02-02T07:54:30Z</time>
-        </rtept>
-        <rtept lat="47.229236980562256" lon="-1.5504753767742476">
-            <ele>7.08</ele>
-            <time>2020-02-02T07:54:30Z</time>
-        </rtept>
-        <rtept lat="47.2301112449252" lon="-1.5493804339650867">
-            <ele>7.07</ele>
             <time>2020-02-02T07:54:30Z</time>
         </rtept>
     </rte>
