@@ -2,15 +2,17 @@
 
 Based on [GPXParser.js](https://github.com/Luuka/GPXParser.js), which has been unmaintained, this updated library is intended to bring modern JavaScript features to GPX parsing, including extensions in tracks and fully featured typescript support.
 
-_I'm also open to any improvements or suggestions with the library, so feel free to leave an issue._
+_I'm also open to any improvements or suggestions with the library, so feel free to leave an issue ([Contributing](#contribution))._
 
 ## GPX Schema
 
 The schema for GPX, a commonly used gps tracking format, can be found here: [GPX 1.1](https://www.topografix.com/gpx.asp).
 
+See [Documentation](#documentation) for more details on how GPX data is represented by the library.
+
 # Usage
 
-**This library currently does not include support for non-browser execution.**
+**This library does include support for non-browser execution.**
 
 Right now, to use this in Node.js without a browser or in something like React Native, use [`xmldom-qsa`](https://www.npmjs.com/package/xmldom-qsa) instead.
 
@@ -109,6 +111,16 @@ const [parsedFile, error] = parseGPXWithCustomParser(
 	customParseMethod
 )
 ```
+
+# Contribution
+
+If you are having an issue and aren't sure how to resolve it, feel free to leave an issue.
+
+If you do know how to fix it, please leave a PR, as I cannot guarantee how soon I can address the issue myself.
+
+I do try to be responsive to PRs though, so if you leave one I'll try to get it merged asap.
+
+Also, there are some basic tests built in to the library, so please test your code before you try to get it merged (_just to make sure everything is backwards compatible_). Use `npm run test` to do this.
 
 # Documentation
 
