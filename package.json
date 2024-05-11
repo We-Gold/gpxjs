@@ -2,7 +2,7 @@
 	"name": "@we-gold/gpxjs",
 	"author": "Weaver Goldman <we.goldm@gmail.com>",
 	"description": "GPX.js is a modern library for parsing GPX files and converting them to GeoJSON.",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"type": "module",
 	"license": "MIT",
 	"repository": {
@@ -29,7 +29,8 @@
 	"exports": {
 		".": {
 			"import": "./dist/gpxjs.js",
-			"require": "./dist/gpxjs.umd.cjs"
+			"require": "./dist/gpxjs.umd.cjs",
+			"types": "./dist/index.d.ts"
 		}
 	},
 	"scripts": {
