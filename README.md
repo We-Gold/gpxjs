@@ -1,3 +1,10 @@
+![GitHub package.json version (branch)](https://img.shields.io/github/package-json/v/We-Gold/gpxjs/main?label=npm%20version&color=green&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@we-gold/gpxjs)
+![npm bundle size](https://img.shields.io/bundlephobia/min/@we-gold/gpxjs?color=green)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/We-Gold/gpxjs/issues)
+![ViewCount](https://views.whatilearened.today/views/github/We-Gold/gpxjs.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+![NPM Downloads](https://img.shields.io/npm/dw/@we-gold/gpxjs)
+
 # GPX.JS
 
 Based on [GPXParser.js](https://github.com/Luuka/GPXParser.js), which has been unmaintained, this updated library is intended to bring modern JavaScript features to GPX parsing, including extensions in tracks and fully featured typescript support.
