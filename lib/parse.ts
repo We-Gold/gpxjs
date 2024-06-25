@@ -82,18 +82,18 @@ export const parseGPXWithCustomParser = (
 				email:
 					emailElement !== null
 						? {
-								id: emailElement.getAttribute("id") ?? "",
-								domain:
-									emailElement.getAttribute("domain") ?? "",
-						  }
+							id: emailElement.getAttribute("id") ?? "",
+							domain:
+								emailElement.getAttribute("domain") ?? "",
+						}
 						: null,
 				link:
 					linkElement !== null
 						? {
-								href: linkElement.getAttribute("href") ?? "",
-								text: getElementValue(linkElement, "text"),
-								type: getElementValue(linkElement, "type"),
-						  }
+							href: linkElement.getAttribute("href") ?? "",
+							text: getElementValue(linkElement, "text"),
+							type: getElementValue(linkElement, "type"),
+						}
 						: null,
 			}
 		}
@@ -322,9 +322,7 @@ const getElementValue = (parent: Element, tag: string): string => {
 
 	// Extract and return the value within the parent element
 	if (element !== null) {
-		return element.innerHTML != undefined
-			? element.innerHTML
-			: element.childNodes[0].textContent ?? ""
+		return element.firstChild?.textContent ?? element.innerHTML ?? ""
 	} else return ""
 }
 
