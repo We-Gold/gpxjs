@@ -328,8 +328,8 @@ const getElementValue = (parent: Element, tag: string): string | null => {
 
 	// Extract and return the value within the parent element
 	if (element !== null) {
-		return element.firstChild?.textContent ?? element.innerHTML ?? ""
-	} else return ""
+		return element.firstChild?.textContent ?? element.innerHTML ?? null
+	} else return null
 }
 
 /**
