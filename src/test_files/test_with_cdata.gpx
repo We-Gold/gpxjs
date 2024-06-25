@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" creator="MTK - http://www.toursprung.com" version="1.1"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+   <metadata>
+      <name><![CDATA[#2RR @ BiciNuragica 2015: da Selargius a Silius]]></name>
+      
+   </metadata>
+   
+      <trk><name><![CDATA[#2RR @ BiciNuragica 2015: da Selargius a Silius]]></name><trkseg>
+         <trkpt lat="39.26581" lon="9.13899"><ele>16</ele></trkpt>
+<trkpt lat="39.2658" lon="9.13892"><ele>16</ele></trkpt>
+<trkpt lat="39.26621" lon="9.13878"><ele>16</ele></trkpt>
+<trkpt lat="39.26652" lon="9.1387"><ele>16</ele></trkpt>
+      </trkseg></trk>
+   
+</gpx>
+   

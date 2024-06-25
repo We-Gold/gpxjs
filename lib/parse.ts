@@ -82,18 +82,18 @@ export const parseGPXWithCustomParser = (
 				email:
 					emailElement !== null
 						? {
-								id: emailElement.getAttribute("id") ?? "",
-								domain:
-									emailElement.getAttribute("domain") ?? "",
-						  }
+							id: emailElement.getAttribute("id") ?? "",
+							domain:
+								emailElement.getAttribute("domain") ?? "",
+						}
 						: null,
 				link:
 					linkElement !== null
 						? {
-								href: linkElement.getAttribute("href") ?? "",
-								text: getElementValue(linkElement, "text"),
-								type: getElementValue(linkElement, "type"),
-						  }
+							href: linkElement.getAttribute("href") ?? "",
+							text: getElementValue(linkElement, "text"),
+							type: getElementValue(linkElement, "type"),
+						}
 						: null,
 			}
 		}
@@ -109,6 +109,8 @@ export const parseGPXWithCustomParser = (
 		}
 	}
 
+	output.metadata = removeNullFields(output.metadata)
+
 	// Parse and store all waypoints
 	const waypoints = Array.from(output.xml.querySelectorAll("wpt"))
 	for (const waypoint of waypoints) {
@@ -123,7 +125,7 @@ export const parseGPXWithCustomParser = (
 			time: null,
 		}
 
-		const rawElevation = parseFloat(getElementValue(waypoint, "ele"))
+		const rawElevation = parseFloat(getElementValue(waypoint, "ele") ?? "")
 		point.elevation = isNaN(rawElevation) ? null : rawElevation
 
 		const rawTime = getElementValue(waypoint, "time")
@@ -131,6 +133,8 @@ export const parseGPXWithCustomParser = (
 
 		output.waypoints.push(point)
 	}
+
+	output.waypoints = removeNullFields(output.waypoints)
 
 	const routes = Array.from(output.xml.querySelectorAll("rte"))
 	for (const routeElement of routes) {
@@ -199,6 +203,8 @@ export const parseGPXWithCustomParser = (
 		output.routes.push(route)
 	}
 
+	// output.routes = removeNullFields(output.routes)
+
 	const tracks = Array.from(output.xml.querySelectorAll("trk"))
 	for (const trackElement of tracks) {
 		const track: Track = {
@@ -260,7 +266,7 @@ export const parseGPXWithCustomParser = (
 				point.extensions = extensions
 			}
 
-			const rawElevation = parseFloat(getElementValue(trackPoint, "ele"))
+			const rawElevation = parseFloat(getElementValue(trackPoint, "ele") ?? "")
 			point.elevation = isNaN(rawElevation) ? null : rawElevation
 
 			const rawTime = getElementValue(trackPoint, "time")
@@ -317,14 +323,12 @@ const parseExtensions = (
  * @param tag The tag of the child element that contains the desired data (e.g. "time" or "name")
  * @returns A string containing the desired value
  */
-const getElementValue = (parent: Element, tag: string): string => {
+const getElementValue = (parent: Element, tag: string): string | null => {
 	const element = parent.querySelector(tag)
 
 	// Extract and return the value within the parent element
 	if (element !== null) {
-		return element.innerHTML != undefined
-			? element.innerHTML
-			: element.childNodes[0].textContent ?? ""
+		return element.firstChild?.textContent ?? element.innerHTML ?? ""
 	} else return ""
 }
 
@@ -354,4 +358,29 @@ const querySelectDirectDescendant = (
 			)
 		} else return null
 	}
+}
+
+const removeNullFields = <T>(object: T): T => {
+	// Return non-object values as-is
+	if (typeof object !== 'object' || object === null) {
+		return object
+	}
+
+	// Remove null fields from arrays
+	if (Array.isArray(object)) {
+		return object
+			.map(removeNullFields)
+			.filter(value => value != null) as T
+	}
+
+	// Recursively remove null fields from object
+	const result: { [key: string]: any } = {}
+	for (const [key, value] of Object.entries(object)) {
+		const processedValue = removeNullFields(value)
+		if (processedValue != null) {
+			result[key] = processedValue
+		}
+	}
+
+	return result as T
 }
