@@ -9,6 +9,8 @@ import {
 	WaypointFeature,
 } from "./types"
 
+import { deleteNullFields } from "./parse"
+
 /**
  * Represents a parsed GPX object.
  * All internal data is accessible, and can be converted to GeoJSON.
@@ -19,13 +21,15 @@ export class ParsedGPX {
 	public waypoints: Waypoint[]
 	public tracks: Track[]
 	public routes: Route[]
+	private removeEmptyFields: boolean
 
-	constructor({ xml, metadata, waypoints, tracks, routes }: ParsedGPXInputs) {
+	constructor({ xml, metadata, waypoints, tracks, routes }: ParsedGPXInputs, removeEmptyFields: boolean = true) {
 		this.xml = xml
 		this.metadata = metadata
 		this.waypoints = waypoints
 		this.tracks = tracks
 		this.routes = routes
+		this.removeEmptyFields = removeEmptyFields
 	}
 
 	/**
@@ -106,6 +110,8 @@ export class ParsedGPX {
 
 			GeoJSON.features.push(feature)
 		}
+
+		if (this.removeEmptyFields) deleteNullFields(GeoJSON)
 
 		return GeoJSON
 	}

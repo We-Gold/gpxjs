@@ -1,7 +1,6 @@
 import { parseGPX, parseGPXWithCustomParser } from "../lib"
 import { DOMParser } from "xmldom-qsa"
 
-// fetch("./src/test_files/test_with_cdata.gpx")
 fetch("./src/test_files/test.gpx")
 	.then((response) => {
 		if (!response.ok) {
