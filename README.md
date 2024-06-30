@@ -85,6 +85,8 @@ fetch("./somefile.gpx")
 	})
 ```
 
+_`parseGPX` has an additional optional argument `removeEmptyFields` which removes empty or null values from the output. It is true by default. This argument is also available in `parseGPXWithCustomParser`._
+
 ### Use the Parsed GPX
 
 ```js
