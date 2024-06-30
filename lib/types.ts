@@ -1,16 +1,16 @@
 export type MetaData = {
-	name: string
-	description: string
+	name: string | null
+	description: string | null
 	link: Link | null
 	author: Author | null
-	time: string
+	time: string | null
 }
 
 export type Waypoint = {
-	name: string
-	symbol: string
-	comment: string
-	description: string
+	name: string | null
+	symbol: string | null
+	comment: string | null
+	description: string | null
 	latitude: number
 	longitude: number
 	elevation: number | null
@@ -18,11 +18,11 @@ export type Waypoint = {
 }
 
 export type Track = {
-	name: string
-	comment: string
-	description: string
-	src: string
-	number: string
+	name: string | null
+	comment: string | null
+	description: string | null
+	src: string | null
+	number: string | null
 	link: Link | null
 	type: string | null
 	points: Point[]
@@ -32,11 +32,11 @@ export type Track = {
 }
 
 export type Route = {
-	name: string
-	comment: string
-	description: string
-	src: string
-	number: string
+	name: string | null
+	comment: string | null
+	description: string | null
+	src: string | null
+	number: string | null
 	link: Link | null
 	type: string | null
 	points: Point[]

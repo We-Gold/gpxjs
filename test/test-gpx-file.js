@@ -108,7 +108,6 @@ export const expectedMetadata = {
 
 export const expectedWaypoint = {
     name: "Porte de Carquefou",
-    symbol: "",
     latitude: 47.253146555709,
     longitude: -1.5153741828293,
     elevation: 35,
@@ -137,8 +136,6 @@ export const expectedTrack = {
         average: 12.36,
         maximum: 12.36,
         minimum: 12.36,
-        positive: null, // TODO is this correct?
-        negative: null,
     },
     points: [
         {
@@ -179,8 +176,6 @@ export const expectedRoute = {
         average: 12.36,
         maximum: 12.36,
         minimum: 12.36,
-        positive: null, // TODO is this correct?
-        negative: null,
     },
     points: [
         {
@@ -188,7 +183,6 @@ export const expectedRoute = {
             longitude: -1.5521714646550901,
             elevation: 12.36,
             time: new Date("2020-02-02T07:54:30.000Z"),
-            extensions: null,
         },
     ],
     slopes: [],

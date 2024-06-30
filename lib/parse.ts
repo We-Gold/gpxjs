@@ -17,9 +17,10 @@ import {
  * Converts the given GPX XML to a JavaScript Object with the ability to convert to GeoJSON.
  *
  * @param gpxSource A string containing the source GPX XML
+ * @param removeEmptyFields Whether or not to remove null or undefined fields from the output
  * @returns A ParsedGPX with all of the parsed data and a method to convert to GeoJSON
  */
-export const parseGPX = (gpxSource: string) => {
+export const parseGPX = (gpxSource: string, removeEmptyFields: boolean = true) => {
 	const parseMethod = (gpxSource: string): Document | null => {
 		// Verify that we are in a browser
 		if (typeof document == undefined) return null
@@ -28,7 +29,7 @@ export const parseGPX = (gpxSource: string) => {
 		return domParser.parseFromString(gpxSource, "text/xml")
 	}
 
-	return parseGPXWithCustomParser(gpxSource, parseMethod)
+	return parseGPXWithCustomParser(gpxSource, parseMethod, removeEmptyFields)
 }
 
 /**
@@ -37,11 +38,13 @@ export const parseGPX = (gpxSource: string) => {
  *
  * @param gpxSource A string containing the source GPX XML
  * @param parseGPXToXML An optional method that parses gpx to a usable XML format
+ * @param removeEmptyFields Whether or not to remove null or undefined fields from the output
  * @returns A ParsedGPX with all of the parsed data and a method to convert to GeoJSON
  */
 export const parseGPXWithCustomParser = (
 	gpxSource: string,
-	parseGPXToXML: (gpxSource: string) => Document | null
+	parseGPXToXML: (gpxSource: string) => Document | null,
+	removeEmptyFields: boolean = true
 ): [null, Error] | [ParsedGPX, null] => {
 	// Parse the GPX string using the given parse method
 	const parsedSource = parseGPXToXML(gpxSource)
@@ -123,7 +126,7 @@ export const parseGPXWithCustomParser = (
 			time: null,
 		}
 
-		const rawElevation = parseFloat(getElementValue(waypoint, "ele"))
+		const rawElevation = parseFloat(getElementValue(waypoint, "ele") ?? "")
 		point.elevation = isNaN(rawElevation) ? null : rawElevation
 
 		const rawTime = getElementValue(waypoint, "time")
@@ -260,7 +263,7 @@ export const parseGPXWithCustomParser = (
 				point.extensions = extensions
 			}
 
-			const rawElevation = parseFloat(getElementValue(trackPoint, "ele"))
+			const rawElevation = parseFloat(getElementValue(trackPoint, "ele") ?? "")
 			point.elevation = isNaN(rawElevation) ? null : rawElevation
 
 			const rawTime = getElementValue(trackPoint, "time")
@@ -276,7 +279,14 @@ export const parseGPXWithCustomParser = (
 		output.tracks.push(track)
 	}
 
-	return [new ParsedGPX(output), null]
+	if (removeEmptyFields) {
+		deleteNullFields(output.metadata)
+		deleteNullFields(output.waypoints)
+		deleteNullFields(output.tracks)
+		deleteNullFields(output.routes)
+	}
+
+	return [new ParsedGPX(output, removeEmptyFields), null]
 }
 
 const parseExtensions = (
@@ -317,13 +327,13 @@ const parseExtensions = (
  * @param tag The tag of the child element that contains the desired data (e.g. "time" or "name")
  * @returns A string containing the desired value
  */
-const getElementValue = (parent: Element, tag: string): string => {
+const getElementValue = (parent: Element, tag: string): string | null => {
 	const element = parent.querySelector(tag)
 
 	// Extract and return the value within the parent element
 	if (element !== null) {
-		return element.firstChild?.textContent ?? element.innerHTML ?? ""
-	} else return ""
+		return element.firstChild?.textContent ?? element.innerHTML ?? null
+	} else return null
 }
 
 /**
@@ -351,5 +361,27 @@ const querySelectDirectDescendant = (
 				) ?? null
 			)
 		} else return null
+	}
+}
+
+export const deleteNullFields = <T>(object: T) => {
+	// Return non-object values as-is
+	if (typeof object !== 'object' || object === null || object === undefined) {
+		return 
+	}
+
+	// Remove null fields from arrays
+	if (Array.isArray(object)) {
+		object.forEach(deleteNullFields)
+		return
+	}
+
+	// Recursively remove null fields from object
+	for (const [key, value] of Object.entries(object)) {
+		if (value == null || value == undefined) {
+			delete (object as { [key: string]: any })[key]
+		} else {
+			deleteNullFields(value)
+		}
 	}
 }
