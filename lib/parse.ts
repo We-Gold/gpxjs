@@ -364,17 +364,16 @@ const querySelectDirectDescendant = (
 	}
 }
 
-export const deleteNullFields = <T>(object: T): T => {
+export const deleteNullFields = <T>(object: T) => {
 	// Return non-object values as-is
 	if (typeof object !== 'object' || object === null || object === undefined) {
-		return object
+		return 
 	}
 
 	// Remove null fields from arrays
 	if (Array.isArray(object)) {
-		return object
-			.map(deleteNullFields)
-			.filter(value => value != null && value != undefined) as T
+		object.forEach(deleteNullFields)
+		return
 	}
 
 	// Recursively remove null fields from object
@@ -385,6 +384,4 @@ export const deleteNullFields = <T>(object: T): T => {
 			deleteNullFields(value)
 		}
 	}
-
-	return object as T
 }
