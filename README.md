@@ -101,6 +101,14 @@ const extensions = gpx.tracks[1].extensions
 const geoJSON = parsedGPX.toGeoJSON()
 ```
 
+### Export to GPX
+
+```js
+import { stringifyGPX } from "@we-gold/gpxjs"
+
+const xmlAsString = stringifyGPX(parsedGPX);
+```
+
 ### Using a Custom DOM Parser
 
 If working in an environment where a custom DOM Parser is required, you can include it like so:
@@ -108,8 +116,8 @@ If working in an environment where a custom DOM Parser is required, you can incl
 _Note, this is significantly slower than using the browser parser._
 
 ```js
-import { parseGPXWithCustomParser } from "@we-gold/gpxjs"
-import { DOMParser } from "xmldom-qsa"
+import { parseGPXWithCustomParser, stringifyGPX} from "@we-gold/gpxjs"
+import { DOMParser, XMLSerializer } from "xmldom-qsa"
 
 const customParseMethod = (txt: string): Document | null => {
 	return new DOMParser().parseFromString(txt, "text/xml")
@@ -119,6 +127,8 @@ const [parsedFile, error] = parseGPXWithCustomParser(
 	myXMLGPXString,
 	customParseMethod
 )
+
+const xml = stringifyGPX(parsedFile, new XMLSerializer());
 ```
 
 # Contribution
