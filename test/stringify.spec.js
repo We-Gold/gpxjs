@@ -1,5 +1,6 @@
 import { expect, test, assertType, describe } from "vitest"
 
+import { XMLSerializer as QsaXMLSerializer } from "xmldom-qsa"
 import { parseGPX } from "../lib/index";
 import { stringifyGPX } from "../lib/stringify";
 
@@ -9,6 +10,12 @@ describe("stringfy", () => {
   test("converts ParsedGPX to string", () => {
     const [gpx, error] = parseGPX(testGPXFile);
     const xml = stringifyGPX(gpx);
+    expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML));
+  })
+
+  test("converts ParsedGPX to string with custom XMLSerializer", () => {
+    const [gpx, error] = parseGPX(testGPXFile);
+    const xml = stringifyGPX(gpx, new QsaXMLSerializer());
     expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML));
   })
 });

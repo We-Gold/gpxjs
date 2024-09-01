@@ -128,7 +128,7 @@ const [parsedFile, error] = parseGPXWithCustomParser(
 	customParseMethod
 )
 
-const xml = stringifyGPX(parsedFile, customXmlSerializer = new XMLSerializer());
+const xml = stringifyGPX(parsedFile, new XMLSerializer());
 ```
 
 # Contribution
