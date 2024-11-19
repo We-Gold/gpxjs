@@ -132,3 +132,8 @@ export type GeoJSON = {
 export type Extensions = {
 	[key: string]: string | number | Extensions
 }
+
+export type Options = {
+	removeEmptyFields: boolean
+	avgSpeedThreshold: number
+}

@@ -1,4 +1,4 @@
-import { Point, Distance, Elevation, Duration } from "./types"
+import { Point, Distance, Elevation, Duration, Options } from "./types"
 
 /**
  * Calculates the distances along a series of points using the haversine formula internally.
@@ -58,42 +58,65 @@ export const haversineDistance = (point1: Point, point2: Point): number => {
  * @returns A duration object
  */
 
+
 export const calculateDuration = (
 	points: Point[],
-	distance: Distance
+	distance: Distance,
+	calculOptions: Options
 ): Duration => {
-	const allTimedPoints = []
-	const cumulative = [0]
+	const { avgSpeedThreshold } = calculOptions
+	const allTimedPoints: { time: Date; distance: number }[] = []
+	const cumulative: number[] = [0]
 	let lastTime = 0
 
 	for (let i = 0; i < points.length - 1; i++) {
-		const time = points[i].time
+		const currentPoint = points[i]
+		const time = currentPoint.time
 		const dist = distance.cumulative[i]
 		const previousPoint = cumulative[i]
-		if (dist > 0) {
-			// moving
-			if (time === null) {
-				// weird case
-				cumulative.push(previousPoint)
-			} else {
-				const movingTime = time.getTime() - lastTime
-				const movement = distance.cumulative[i + 1] - dist
-				// Determine if movement is significant
-				const nextCumul =
-					movement / movingTime > 0.00055
-						? previousPoint + movingTime
-						: previousPoint
-				cumulative.push(nextCumul)
-			}
-		} else {
-			// not moving
-			cumulative.push(previousPoint)
-		}
+
 		if (time !== null) {
+			const movingTime = time.getTime() - lastTime
+
+			if (movingTime > 0) {
+				// Calculate average speed over the last 10 seconds
+				let sumDistances = 0
+				let sumTime = 0
+
+				for (let j = i; j >= 0; j--) {
+					const prevTime = points[j].time?.getTime()
+					if (prevTime !== undefined) {
+						const timeDiff = time.getTime() - prevTime
+						if (timeDiff > 10000) break // Only include last 10 seconds
+						sumDistances +=
+							distance.cumulative[j + 1] - distance.cumulative[j]
+						sumTime += timeDiff
+					}
+				}
+
+				const avgSpeed = sumTime > 0 ? sumDistances / sumTime : 0
+
+				// Determine if average speed indicates resting
+				console.log(avgSpeed)
+				const nextCumul =
+					avgSpeed > avgSpeedThreshold
+						? previousPoint + movingTime // Significant movement
+						: previousPoint // Resting, no time added
+
+				cumulative.push(nextCumul)
+			} else {
+				// Handle edge case of no movement
+				cumulative.push(previousPoint)
+			}
+
 			lastTime = time.getTime()
 			allTimedPoints.push({ time, distance: dist })
+		} else {
+			// Missing time, do not contribute to cumulative
+			cumulative.push(previousPoint)
 		}
 	}
+
 	const totalDuration =
 		allTimedPoints.length === 0
 			? 0
@@ -106,8 +129,8 @@ export const calculateDuration = (
 			? allTimedPoints[allTimedPoints.length - 1].time
 			: null,
 		cumulative,
-		movingDuration: cumulative[cumulative.length - 1] / 1000,
-		totalDuration: totalDuration / 1000,
+		movingDuration: cumulative[cumulative.length - 1] / 1000, // Convert to seconds
+		totalDuration: totalDuration / 1000, // Convert to seconds
 	}
 }
 

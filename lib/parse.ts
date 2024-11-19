@@ -12,7 +12,14 @@ import {
 	Track,
 	Waypoint,
 	Extensions,
+	Options,
 } from "./types"
+
+const DEFAULT_THRESHOLD = 0.000215 // m/ms - 0.215 m/s - 774000 km/h
+const DEFAULT_OPTIONS = {
+	removeEmptyFields: true,
+	avgSpeedThreshold: DEFAULT_THRESHOLD,
+}
 
 /**
  * Converts the given GPX XML to a JavaScript Object with the ability to convert to GeoJSON.
@@ -21,16 +28,25 @@ import {
  * @param removeEmptyFields Whether or not to remove null or undefined fields from the output
  * @returns A ParsedGPX with all of the parsed data and a method to convert to GeoJSON
  */
-export const parseGPX = (gpxSource: string, removeEmptyFields: boolean = true) => {
+export const parseGPX = (
+	gpxSource: string,
+	removeEmptyFields: boolean = true
+) => {
 	const parseMethod = (gpxSource: string): Document | null => {
 		// Verify that we are in a browser
-		if (typeof document == undefined) return null
-
+		if (typeof document === "undefined") return null
+		if (typeof window === "undefined") {
+			console.error(
+				"window is undefined, try to use the parseGPXWithCustomParser method"
+			)
+			return null
+		}
 		const domParser = new window.DOMParser()
 		return domParser.parseFromString(gpxSource, "text/xml")
 	}
+	const options = { ...DEFAULT_OPTIONS, removeEmptyFields }
 
-	return parseGPXWithCustomParser(gpxSource, parseMethod, removeEmptyFields)
+	return parseGPXWithCustomParser(gpxSource, parseMethod, options)
 }
 
 /**
@@ -45,7 +61,7 @@ export const parseGPX = (gpxSource: string, removeEmptyFields: boolean = true) =
 export const parseGPXWithCustomParser = (
 	gpxSource: string,
 	parseGPXToXML: (gpxSource: string) => Document | null,
-	removeEmptyFields: boolean = true
+	options: Options = DEFAULT_OPTIONS
 ): [null, Error] | [ParsedGPX, null] => {
 	// Parse the GPX string using the given parse method
 	const parsedSource = parseGPXToXML(gpxSource)
@@ -204,7 +220,7 @@ export const parseGPXWithCustomParser = (
 		}
 
 		route.distance = calculateDistance(route.points)
-		route.duration = calculateDuration(route.points, route.distance)
+		route.duration = calculateDuration(route.points, route.distance, options)
 		route.elevation = calculateElevation(route.points)
 		route.slopes = calculateSlopes(route.points, route.distance.cumulative)
 
@@ -289,21 +305,21 @@ export const parseGPXWithCustomParser = (
 		}
 
 		track.distance = calculateDistance(track.points)
-		track.duration = calculateDuration(track.points, track.distance)
+		track.duration = calculateDuration(track.points, track.distance, options)
 		track.elevation = calculateElevation(track.points)
 		track.slopes = calculateSlopes(track.points, track.distance.cumulative)
 
 		output.tracks.push(track)
 	}
 
-	if (removeEmptyFields) {
+	if (options.removeEmptyFields) {
 		deleteNullFields(output.metadata)
 		deleteNullFields(output.waypoints)
 		deleteNullFields(output.tracks)
 		deleteNullFields(output.routes)
 	}
 
-	return [new ParsedGPX(output, removeEmptyFields), null]
+	return [new ParsedGPX(output, options.removeEmptyFields), null]
 }
 
 const parseExtensions = (
