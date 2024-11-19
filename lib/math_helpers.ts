@@ -78,7 +78,6 @@ export const calculateDuration = (
 			} else {
 				const movingTime = time.getTime() - lastTime
 				const movement = distance.cumulative[i + 1] - dist
-				console.log(movement, movingTime, movement / movingTime)
 				// Determine if movement is significant
 				const nextCumul =
 					movement / movingTime > 0.00055
