@@ -27,6 +27,7 @@ export type Track = {
 	type: string | null
 	points: Point[]
 	distance: Distance
+	duration: Duration
 	elevation: Elevation
 	slopes: number[]
 }
@@ -42,6 +43,7 @@ export type Route = {
 	points: Point[]
 	distance: Distance
 	elevation: Elevation
+	duration: Duration
 	slopes: number[]
 }
 
@@ -56,6 +58,14 @@ export type Point = {
 export type Distance = {
 	total: number
 	cumulative: number[]
+}
+
+export type Duration = {
+	cumulative: number[]
+	movingDuration: number
+	totalDuration: number
+	startTime: Date | null
+	endTime: Date | null
 }
 
 export type Elevation = {

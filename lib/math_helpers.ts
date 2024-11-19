@@ -1,4 +1,4 @@
-import { Point, Distance, Elevation } from "./types"
+import { Point, Distance, Elevation, Duration } from "./types"
 
 /**
  * Calculates the distances along a series of points using the haversine formula internally.
@@ -47,6 +47,69 @@ export const haversineDistance = (point1: Point, point2: Point): number => {
 		Math.cos(lat1Radians) * Math.cos(lat2Radians) * sinDeltaLongitude ** 2
 	const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 	return 6371000 * c
+}
+
+/**
+ * Calculates duration statistics based on distance traveled and the time taken.
+ *
+ *
+ * @param points A list of points with a time
+ * @param distance A distance object containing the total distance and the cumulative distances
+ * @returns A duration object
+ */
+
+export const calculateDuration = (
+	points: Point[],
+	distance: Distance
+): Duration => {
+	const allTimedPoints = []
+	const cumulative = [0]
+	let lastTime = 0
+
+	for (let i = 0; i < points.length - 1; i++) {
+		const time = points[i].time
+		const dist = distance.cumulative[i]
+		const previousPoint = cumulative[i]
+		if (dist > 0) {
+			// moving
+			if (time === null) {
+				// weird case
+				cumulative.push(previousPoint)
+			} else {
+				const movingTime = time.getTime() - lastTime
+				const movement = distance.cumulative[i + 1] - dist
+				console.log(movement, movingTime, movement / movingTime)
+				// Determine if movement is significant
+				const nextCumul =
+					movement / movingTime > 0.00055
+						? previousPoint + movingTime
+						: previousPoint
+				cumulative.push(nextCumul)
+			}
+		} else {
+			// not moving
+			cumulative.push(previousPoint)
+		}
+		if (time !== null) {
+			lastTime = time.getTime()
+			allTimedPoints.push({ time, distance: dist })
+		}
+	}
+	const totalDuration =
+		allTimedPoints.length === 0
+			? 0
+			: allTimedPoints[allTimedPoints.length - 1].time.getTime() -
+			  allTimedPoints[0].time.getTime()
+
+	return {
+		startTime: allTimedPoints.length ? allTimedPoints[0].time : null,
+		endTime: allTimedPoints.length
+			? allTimedPoints[allTimedPoints.length - 1].time
+			: null,
+		cumulative,
+		movingDuration: cumulative[cumulative.length - 1] / 1000,
+		totalDuration: totalDuration / 1000,
+	}
 }
 
 /**

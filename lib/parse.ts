@@ -1,5 +1,6 @@
 import {
 	calculateDistance,
+	calculateDuration,
 	calculateElevation,
 	calculateSlopes,
 } from "./math_helpers"
@@ -150,6 +151,13 @@ export const parseGPXWithCustomParser = (
 				cumulative: [],
 				total: 0,
 			},
+			duration: {
+				cumulative: [],
+				movingDuration: 0,
+				totalDuration: 0,
+				endTime: null,
+				startTime: null,
+			},
 			elevation: {
 				maximum: null,
 				minimum: null,
@@ -196,6 +204,7 @@ export const parseGPXWithCustomParser = (
 		}
 
 		route.distance = calculateDistance(route.points)
+		route.duration = calculateDuration(route.points, route.distance)
 		route.elevation = calculateElevation(route.points)
 		route.slopes = calculateSlopes(route.points, route.distance.cumulative)
 
@@ -216,6 +225,13 @@ export const parseGPXWithCustomParser = (
 			distance: {
 				cumulative: [],
 				total: 0,
+			},
+			duration: {
+				cumulative: [],
+				movingDuration: 0,
+				totalDuration: 0,
+				startTime: null,
+				endTime: null,
 			},
 			elevation: {
 				maximum: null,
@@ -273,6 +289,7 @@ export const parseGPXWithCustomParser = (
 		}
 
 		track.distance = calculateDistance(track.points)
+		track.duration = calculateDuration(track.points, track.distance)
 		track.elevation = calculateElevation(track.points)
 		track.slopes = calculateSlopes(track.points, track.distance.cumulative)
 
