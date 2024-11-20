@@ -97,7 +97,6 @@ export const calculateDuration = (
 				const avgSpeed = sumTime > 0 ? sumDistances / sumTime : 0
 
 				// Determine if average speed indicates resting
-				console.log(avgSpeed)
 				const nextCumul =
 					avgSpeed > avgSpeedThreshold
 						? previousPoint + movingTime // Significant movement
