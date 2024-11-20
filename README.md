@@ -152,6 +152,11 @@ const [parsedFile, error] = parseGPX(data, {
 // same for parseGPXWithCustomParser()
 ```
 
+| Property          | Type    | Description                                                             |
+| ----------------- | ------- | ----------------------------------------------------------------------- |
+| removeEmptyFields | boolean | delete null fields in output                                            |
+| avgSpeedThreshold | number  | average speed threshold (in m/ms) used to determine the moving duration |
+
 ## Types
 
 These descriptions are adapted from [GPXParser.js](https://github.com/Luuka/GPXParser.js), with minor modifications.
