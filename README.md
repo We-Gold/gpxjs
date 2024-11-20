@@ -200,9 +200,9 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | link        | String           | Link to a web address                 |
 | type        | String           | Track type                            |
 | points      | Array            | Array of Points                       |
-| distance    | Distance Object  | Distance information about the Route  |
-| duration    | Duration Object  | Duration information about the Route  |
-| elevation   | Elevation Object | Elevation information about the Route |
+| distance    | Distance Object  | Distance information about the Track  |
+| duration    | Duration Object  | Duration information about the Track  |
+| elevation   | Elevation Object | Elevation information about the Track |
 | slopes      | Float Array      | Slope of each sub-segment             |
 
 ### Route
