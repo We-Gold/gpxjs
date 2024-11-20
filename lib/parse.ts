@@ -4,6 +4,7 @@ import {
 	calculateElevation,
 	calculateSlopes,
 } from "./math_helpers"
+import { DEFAULT_OPTIONS } from "./options"
 import { ParsedGPX } from "./parsed_gpx"
 import {
 	ParsedGPXInputs,
@@ -15,12 +16,6 @@ import {
 	Options,
 } from "./types"
 
-const DEFAULT_THRESHOLD = 0.000215 // m/ms - 0.215 m/s - 774000 km/h
-const DEFAULT_OPTIONS = {
-	removeEmptyFields: true,
-	avgSpeedThreshold: DEFAULT_THRESHOLD,
-}
-
 /**
  * Converts the given GPX XML to a JavaScript Object with the ability to convert to GeoJSON.
  *
@@ -30,7 +25,7 @@ const DEFAULT_OPTIONS = {
  */
 export const parseGPX = (
 	gpxSource: string,
-	removeEmptyFields: boolean = true
+	options: Options = DEFAULT_OPTIONS
 ) => {
 	const parseMethod = (gpxSource: string): Document | null => {
 		// Verify that we are in a browser
@@ -44,9 +39,8 @@ export const parseGPX = (
 		const domParser = new window.DOMParser()
 		return domParser.parseFromString(gpxSource, "text/xml")
 	}
-	const options = { ...DEFAULT_OPTIONS, removeEmptyFields }
-
-	return parseGPXWithCustomParser(gpxSource, parseMethod, options)
+	const allOptions = { ...DEFAULT_OPTIONS, ...options }
+	return parseGPXWithCustomParser(gpxSource, parseMethod, allOptions)
 }
 
 /**
@@ -400,7 +394,7 @@ const querySelectDirectDescendant = (
 export const deleteNullFields = <T>(object: T) => {
 	// Return non-object values as-is
 	if (typeof object !== 'object' || object === null || object === undefined) {
-		return 
+		return
 	}
 
 	// Remove null fields from arrays
