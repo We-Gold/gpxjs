@@ -36,6 +36,7 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
+		"watch": "vite build --watch",
 		"pack-test": "npm pack --dry-run",
 		"preview": "vite preview",
 		"test": "vitest"

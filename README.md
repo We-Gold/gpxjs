@@ -17,7 +17,7 @@ The schema for GPX, a commonly used gps tracking format, can be found here: [GPX
 
 See [Documentation](#documentation) for more details on how GPX data is represented by the library.
 
-# Usage
+## Usage
 
 **This library does include support for non-browser execution.**
 
@@ -141,7 +141,23 @@ I do try to be responsive to PRs though, so if you leave one I'll try to get it 
 
 Also, there are some basic tests built in to the library, so please test your code before you try to get it merged (_just to make sure everything is backwards compatible_). Use `npm run test` to do this.
 
-# Documentation
+## Options
+
+You can also run `parseGPX()` with custom options for more control over the parsing process. See [options.ts](./lib/options.ts) for more details.
+
+```js
+const [parsedFile, error] = parseGPX(data, {
+    avgSpeedThreshold: 0.1,
+})
+// same for parseGPXWithCustomParser()
+```
+
+| Property          | Type    | Description                                                             |
+| ----------------- | ------- | ----------------------------------------------------------------------- |
+| removeEmptyFields | boolean | delete null fields in output                                            |
+| avgSpeedThreshold | number  | average speed threshold (in m/ms) used to determine the moving duration |
+
+## Types
 
 These descriptions are adapted from [GPXParser.js](https://github.com/Luuka/GPXParser.js), with minor modifications.
 
@@ -155,7 +171,7 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | tracks    | Array of Tracks    | Array of waypoints of tracks        |
 | routes    | Array of Routes    | Array of waypoints of routes        |
 
-## Metadata
+### Metadata
 
 | Property    | Type        | Description   |
 | ----------- | ----------- | ------------- |
@@ -165,7 +181,7 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | author      | Float       | Author object |
 | time        | String      | Time          |
 
-## Waypoint
+### Waypoint
 
 | Property    | Type   | Description       |
 | ----------- | ------ | ----------------- |
@@ -177,7 +193,7 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | elevation   | Float  | Point elevation   |
 | time        | Date   | Point time        |
 
-## Track
+### Track
 
 | Property    | Type             | Description                           |
 | ----------- | ---------------- | ------------------------------------- |
@@ -189,11 +205,12 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | link        | String           | Link to a web address                 |
 | type        | String           | Track type                            |
 | points      | Array            | Array of Points                       |
-| distance    | Distance Object  | Distance information about the Route  |
-| elevation   | Elevation Object | Elevation information about the Route |
+| distance    | Distance Object  | Distance information about the Track  |
+| duration    | Duration Object  | Duration information about the Track  |
+| elevation   | Elevation Object | Elevation information about the Track |
 | slopes      | Float Array      | Slope of each sub-segment             |
 
-## Route
+### Route
 
 | Property    | Type             | Description                           |
 | ----------- | ---------------- | ------------------------------------- |
@@ -206,10 +223,11 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | type        | String           | Route type                            |
 | points      | Array            | Array of Points                       |
 | distance    | Distance Object  | Distance information about the Route  |
+| duration    | Duration Object  | Duration information about the Route  |
 | elevation   | Elevation Object | Elevation information about the Route |
 | slopes      | Float Array      | Slope of each sub-segment             |
 
-## Point
+### Point
 
 | Property  | Type  | Description     |
 | --------- | ----- | --------------- |
@@ -218,14 +236,24 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | elevation | Float | Point elevation |
 | time      | Date  | Point time      |
 
-## Distance
+### Distance
 
 | Property   | Type  | Description                                          |
 | ---------- | ----- | ---------------------------------------------------- |
 | total      | Float | Total distance of the Route/Track                    |
 | cumulative | Float | Cumulative distance at each point of the Route/Track |
 
-## Elevation
+### Duration
+
+| Property       | Type         | Description                                          |
+| -------------- | ------------ | ---------------------------------------------------- |
+| cumulative     | Float        | Cumulative duration at each point of the Route/Track |
+| movingDuration | Float        | Total moving duration of the Route/Track in seconds  |
+| totalDuration  | Float        | Total duration of the Route/Track in seconds         |
+| startTime      | Date or null | Start date, if available                             |
+| endTime        | Date or null | End date, if available                               |
+
+### Elevation
 
 | Property | Type  | Description                   |
 | -------- | ----- | ----------------------------- |
@@ -235,7 +263,7 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | negative | Float | Negative elevation difference |
 | average  | Float | Average elevation             |
 
-## Author
+### Author
 
 | Property | Type         | Description                 |
 | -------- | ------------ | --------------------------- |
@@ -243,14 +271,14 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | email    | Email object | Email address of the author |
 | link     | Link object  | Web address                 |
 
-## Email
+### Email
 
 | Property | Type   | Description  |
 | -------- | ------ | ------------ |
 | id       | String | Email id     |
 | domain   | String | Email domain |
 
-## Link
+### Link
 
 | Property | Type   | Description |
 | -------- | ------ | ----------- |

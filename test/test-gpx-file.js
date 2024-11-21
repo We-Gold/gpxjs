@@ -132,6 +132,11 @@ export const expectedTrack = {
         cumulative: [0],
         total: 0,
     },
+    duration: {
+        cumulative: [0],
+        movingDuration: 0,
+        totalDuration: 0,
+    },
     elevation: {
         average: 12.36,
         maximum: 12.36,
@@ -171,6 +176,11 @@ export const expectedRoute = {
     distance: {
         cumulative: [0],
         total: 0,
+    },
+    duration: {
+        cumulative: [0],
+        movingDuration: 0,
+        totalDuration: 0,
     },
     elevation: {
         average: 12.36,
