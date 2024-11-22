@@ -2,11 +2,13 @@ import {
 	Feature,
 	GeoJSON,
 	MetaData,
+	Options,
 	ParsedGPXInputs,
 	Route,
 	Track,
 	Waypoint,
 	WaypointFeature,
+	XMLSerializationStrategy,
 } from "./types"
 
 import { deleteNullFields } from "./parse"
@@ -16,6 +18,7 @@ import {
 	calculateElevation,
 } from "./math_helpers"
 import { DEFAULT_OPTIONS } from "./options"
+import { stringifyGPX } from "./stringify"
 
 /**
  * Represents a parsed GPX object.
@@ -120,6 +123,10 @@ export class ParsedGPX {
 		if (this.removeEmptyFields) deleteNullFields(GeoJSON)
 
 		return GeoJSON
+	}
+
+	stringifyGPX(customXmlSerializer?: XMLSerializationStrategy) {
+		return stringifyGPX(this, customXmlSerializer)
 	}
 
 	/** Track funcs **/
