@@ -2,14 +2,23 @@ import {
 	Feature,
 	GeoJSON,
 	MetaData,
+	Options,
 	ParsedGPXInputs,
 	Route,
 	Track,
 	Waypoint,
 	WaypointFeature,
+	XMLSerializationStrategy,
 } from "./types"
 
 import { deleteNullFields } from "./parse"
+import {
+	calculateDistance,
+	calculateDuration,
+	calculateElevation,
+} from "./math_helpers"
+import { DEFAULT_OPTIONS } from "./options"
+import { stringifyGPX } from "./stringify"
 
 /**
  * Represents a parsed GPX object.
@@ -114,5 +123,47 @@ export class ParsedGPX {
 		if (this.removeEmptyFields) deleteNullFields(GeoJSON)
 
 		return GeoJSON
+	}
+
+	stringifyGPX(customXmlSerializer?: XMLSerializationStrategy) {
+		return stringifyGPX(this, customXmlSerializer)
+	}
+
+	/** Track funcs **/
+	calculateDistanceTrack(indexTrack = 0) {
+		return calculateDistance(this.tracks[indexTrack].points)
+	}
+	calculateDurationTrack(indexTrack = 0, options: Options = DEFAULT_OPTIONS) {
+		const optionsWithDefault = {
+			...DEFAULT_OPTIONS,
+			...options,
+		}
+		return calculateDuration(
+			this.tracks[indexTrack].points,
+			this.calculateDistanceTrack(indexTrack),
+			optionsWithDefault
+		)
+	}
+	calculateElevationTrack(indexTrack = 0) {
+		return calculateElevation(this.tracks[indexTrack].points)
+	}
+
+	/** Route funcs **/
+	calculateDistanceRoute(indexTrack = 0) {
+		return calculateDistance(this.routes[indexTrack].points)
+	}
+	calculateDurationRoute(indexTrack = 0, options: Options = DEFAULT_OPTIONS) {
+		const optionsWithDefault = {
+			...DEFAULT_OPTIONS,
+			...options,
+		}
+		return calculateDuration(
+			this.routes[indexTrack].points,
+			this.calculateDistanceRoute(indexTrack),
+			optionsWithDefault
+		)
+	}
+	calculateElevationRoute(indexTrack = 0) {
+		return calculateElevation(this.routes[indexTrack].points)
 	}
 }
