@@ -102,17 +102,18 @@ const extensions = gpx.tracks[1].extensions
 const geoJSON = parsedGPX.toGeoJSON()
 
 
-/// stringify GPX
+/// stringify GPX function
 import { stringifyGPX } from "@we-gold/gpxjs"
 
 const xmlAsString = stringifyGPX(parsedGPX);
-// or
-const xmlAsString = parsedGPX.stringifyGPX();
+
+// math functions
+import { calculateDistance, calculateDurationTrack, calculateElevationTrack } from "@we-gold/gpxjs"
 
 /// recalculates the distance, duration, elevation, and slopes of the track
-const dist = parsedGPX.calculateDistanceTrack(0);
-const dur = parsedGPX.calculateDurationTrack(0);
-const elev = parsedGPX.calculateElevationTrack(0);
+const dist = parsedGPX.applyToTrack(0, calculateDistance);
+const dur = parsedGPX.applyToTrack(0, calculateDurationTrack);
+const elev = parsedGPX.applyToTrack(0, calculateElevationTrack);
 ```
 
 ### Using a Custom DOM Parser
