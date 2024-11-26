@@ -95,18 +95,25 @@ const totalDistance = gpx.tracks[0].distance.total
 const extensions = gpx.tracks[1].extensions
 ```
 
-### Export to GeoJSON
+### Use parsedGPX functions
 
 ```js
+/// export to GPX
 const geoJSON = parsedGPX.toGeoJSON()
-```
 
-### Export to GPX
 
-```js
+/// stringify GPX function
 import { stringifyGPX } from "@we-gold/gpxjs"
 
 const xmlAsString = stringifyGPX(parsedGPX);
+
+// math functions
+import { calculateDistance, calculateDurationTrack, calculateElevationTrack } from "@we-gold/gpxjs"
+
+/// recalculates the distance, duration, elevation, and slopes of the track
+const dist = parsedGPX.applyToTrack(0, calculateDistance);
+const dur = parsedGPX.applyToTrack(0, calculateDurationTrack);
+const elev = parsedGPX.applyToTrack(0, calculateElevationTrack);
 ```
 
 ### Using a Custom DOM Parser

@@ -2,6 +2,7 @@ import {
 	Feature,
 	GeoJSON,
 	MetaData,
+	Options,
 	ParsedGPXInputs,
 	Route,
 	Track,
@@ -10,6 +11,7 @@ import {
 } from "./types"
 
 import { deleteNullFields } from "./parse"
+import { MathHelperFunction } from "./math_helpers"
 
 /**
  * Represents a parsed GPX object.
@@ -115,4 +117,14 @@ export class ParsedGPX {
 
 		return GeoJSON
 	}
+
+	applyToTrack(trackIndex: number, func: MathHelperFunction, ...args: any[]): ReturnType<MathHelperFunction> {
+		// @ts-ignore: A spread argument must either have a tuple type or be passed to a rest parameter.
+        return func(this.tracks[trackIndex].points, ...args)
+    }
+
+    applyToRoute(routeIndex: number, func: MathHelperFunction, ...args: any[]): ReturnType<MathHelperFunction> {
+		// @ts-ignore: A spread argument must either have a tuple type or be passed to a rest parameter.
+        return func(this.routes[routeIndex].points, ...args)
+    }
 }

@@ -1,5 +1,7 @@
 import { Point, Distance, Elevation, Duration, Options } from "./types"
 
+export type MathHelperFunction = typeof calculateDistance | typeof calculateDuration | typeof calculateElevation | typeof calculateSlopes
+
 /**
  * Calculates the distances along a series of points using the haversine formula internally.
  *
