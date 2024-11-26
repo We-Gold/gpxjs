@@ -137,7 +137,3 @@ export type Options = {
 	removeEmptyFields: boolean
 	avgSpeedThreshold: number
 }
-
-export interface XMLSerializationStrategy {
-    serializeToString(doc: Document): string;
-}

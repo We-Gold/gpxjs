@@ -8,17 +8,10 @@ import {
 	Track,
 	Waypoint,
 	WaypointFeature,
-	XMLSerializationStrategy,
 } from "./types"
 
 import { deleteNullFields } from "./parse"
-import {
-	calculateDistance,
-	calculateDuration,
-	calculateElevation,
-} from "./math_helpers"
-import { DEFAULT_OPTIONS } from "./options"
-import { stringifyGPX } from "./stringify"
+import { MathHelperFunction } from "./math_helpers"
 
 /**
  * Represents a parsed GPX object.
@@ -125,45 +118,13 @@ export class ParsedGPX {
 		return GeoJSON
 	}
 
-	stringifyGPX(customXmlSerializer?: XMLSerializationStrategy) {
-		return stringifyGPX(this, customXmlSerializer)
-	}
+	applyToTrack(trackIndex: number, func: MathHelperFunction, ...args: any[]): ReturnType<MathHelperFunction> {
+		// @ts-ignore: A spread argument must either have a tuple type or be passed to a rest parameter.
+        return func(this.tracks[trackIndex].points, ...args)
+    }
 
-	/** Track funcs **/
-	calculateDistanceTrack(indexTrack = 0) {
-		return calculateDistance(this.tracks[indexTrack].points)
-	}
-	calculateDurationTrack(indexTrack = 0, options: Options = DEFAULT_OPTIONS) {
-		const optionsWithDefault = {
-			...DEFAULT_OPTIONS,
-			...options,
-		}
-		return calculateDuration(
-			this.tracks[indexTrack].points,
-			this.calculateDistanceTrack(indexTrack),
-			optionsWithDefault
-		)
-	}
-	calculateElevationTrack(indexTrack = 0) {
-		return calculateElevation(this.tracks[indexTrack].points)
-	}
-
-	/** Route funcs **/
-	calculateDistanceRoute(indexTrack = 0) {
-		return calculateDistance(this.routes[indexTrack].points)
-	}
-	calculateDurationRoute(indexTrack = 0, options: Options = DEFAULT_OPTIONS) {
-		const optionsWithDefault = {
-			...DEFAULT_OPTIONS,
-			...options,
-		}
-		return calculateDuration(
-			this.routes[indexTrack].points,
-			this.calculateDistanceRoute(indexTrack),
-			optionsWithDefault
-		)
-	}
-	calculateElevationRoute(indexTrack = 0) {
-		return calculateElevation(this.routes[indexTrack].points)
-	}
+    applyToRoute(routeIndex: number, func: MathHelperFunction, ...args: any[]): ReturnType<MathHelperFunction> {
+		// @ts-ignore: A spread argument must either have a tuple type or be passed to a rest parameter.
+        return func(this.routes[routeIndex].points, ...args)
+    }
 }

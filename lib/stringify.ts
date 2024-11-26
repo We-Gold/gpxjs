@@ -1,6 +1,9 @@
 import { ParsedGPX } from "./parsed_gpx";
-import { Extensions, XMLSerializationStrategy } from "./types";
+import { Extensions } from "./types";
 
+interface XMLSerializationStrategy {
+    serializeToString(doc: Document): string;
+}
 
 /**
  * Converts a ParsedGPX object back into a GPX XML string.
