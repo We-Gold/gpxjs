@@ -149,6 +149,8 @@ I do try to be responsive to PRs though, so if you leave one I'll try to get it 
 
 Also, there are some basic tests built in to the library, so please test your code before you try to get it merged (_just to make sure everything is backwards compatible_). Use `npm run test` to do this.
 
+You will need _playwright_ installed to run the tests. Use `npx playwright install` to install it. Follow any additional instructions given by the installer to ensure it works on your operating system.
+
 ## Options
 
 You can also run `parseGPX()` with custom options for more control over the parsing process. See [options.ts](./lib/options.ts) for more details.

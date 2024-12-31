@@ -16,12 +16,12 @@ export default defineConfig({
         }
     },
     test: {
-         browser: {
-              provider: 'playwright',
-              enabled: true,
-              name: 'chromium',
-              headless: true,
-         },
+        browser: {
+            provider: 'playwright',
+            enabled: true,
+            name: 'chromium',
+            headless: true,
+        },
     },
     plugins: [dts()],
     define: {
