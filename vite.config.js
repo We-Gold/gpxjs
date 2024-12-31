@@ -17,9 +17,10 @@ export default defineConfig({
     },
     test: {
         browser: {
-          enabled: true,
-          name: 'chrome',
-          headless: true,
+            provider: 'webdriverio',
+            enabled: true,
+            name: 'chrome',
+            headless: true,
         },
     },
     plugins: [dts()],
