@@ -173,9 +173,17 @@ export const calculateElevation: MathHelperFunction = (
 		}
 	}
 
+	// Find the maximum and minimum elevation
+	let max = elevation[0] ?? null
+	let min = elevation[0] ?? null
+	for (let i = 1; i < elevation.length; i++) {
+		if (elevation[i] > max) max = elevation[i]
+		if (elevation[i] < min) min = elevation[i]
+	}
+
 	return {
-		maximum: elevation.length ? Math.max(...elevation) : null,
-		minimum: elevation.length ? Math.min(...elevation) : null,
+		maximum: max,
+		minimum: min,
 		positive: Math.abs(dp) || null,
 		negative: Math.abs(dn) || null,
 		average: elevation.length ? sum / elevation.length : null,
