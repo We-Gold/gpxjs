@@ -16,12 +16,12 @@ export default defineConfig({
         }
     },
     test: {
-        browser: {
-            provider: 'webdriverio',
-            enabled: true,
-            name: 'chrome',
-            headless: true,
-        },
+         browser: {
+              provider: 'playwright',
+              enabled: true,
+              name: 'chromium',
+              headless: true,
+         },
     },
     plugins: [dts()],
     define: {
