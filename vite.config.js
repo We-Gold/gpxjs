@@ -18,8 +18,8 @@ export default defineConfig({
     test: {
         browser: {
           enabled: true,
-          name: 'chromium',
-          headless: false,
+          name: 'chrome',
+          headless: true,
         },
     },
     plugins: [dts()],
