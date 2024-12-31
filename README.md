@@ -108,12 +108,13 @@ import { stringifyGPX } from "@we-gold/gpxjs"
 const xmlAsString = stringifyGPX(parsedGPX);
 
 // math functions
-import { calculateDistance, calculateDurationTrack, calculateElevationTrack } from "@we-gold/gpxjs"
+import { calculateDistance, calculateDuration, calculateElevation, calculateSlopes } from "@we-gold/gpxjs"
 
 /// recalculates the distance, duration, elevation, and slopes of the track
 const dist = parsedGPX.applyToTrack(0, calculateDistance);
-const dur = parsedGPX.applyToTrack(0, calculateDurationTrack);
-const elev = parsedGPX.applyToTrack(0, calculateElevationTrack);
+const dur = parsedGPX.applyToTrack(0, calculateDuration);
+const elev = parsedGPX.applyToTrack(0, calculateElevation);
+const slope = parsedGPX.applyToTrack(0, calculateSlopes, dist.cumulative)
 ```
 
 ### Using a Custom DOM Parser
