@@ -2,6 +2,7 @@ import {
 	Feature,
 	GeoJSON,
 	MetaData,
+	Options,
 	ParsedGPXInputs,
 	Route,
 	Track,
@@ -10,6 +11,7 @@ import {
 } from "./types"
 
 import { deleteNullFields } from "./parse"
+import { MathHelperFunction } from "./math_helpers"
 
 /**
  * Represents a parsed GPX object.
@@ -21,15 +23,18 @@ export class ParsedGPX {
 	public waypoints: Waypoint[]
 	public tracks: Track[]
 	public routes: Route[]
-	private removeEmptyFields: boolean
+	private options: Options
 
-	constructor({ xml, metadata, waypoints, tracks, routes }: ParsedGPXInputs, removeEmptyFields: boolean = true) {
+	constructor(
+		{ xml, metadata, waypoints, tracks, routes }: ParsedGPXInputs,
+		options: Options
+	) {
 		this.xml = xml
 		this.metadata = metadata
 		this.waypoints = waypoints
 		this.tracks = tracks
 		this.routes = routes
-		this.removeEmptyFields = removeEmptyFields
+		this.options = options
 	}
 
 	/**
@@ -111,8 +116,52 @@ export class ParsedGPX {
 			GeoJSON.features.push(feature)
 		}
 
-		if (this.removeEmptyFields) deleteNullFields(GeoJSON)
+		if (this.options.removeEmptyFields) deleteNullFields(GeoJSON)
 
 		return GeoJSON
+	}
+
+	applyToTrack(
+		trackIndex: number,
+		func: MathHelperFunction,
+		...args: any[]
+	): ReturnType<MathHelperFunction> {
+		// Ensure that the track index is valid
+		if (trackIndex < 0 || trackIndex >= this.tracks.length) {
+			console.error("The track index is out of bounds.")
+			return
+		}
+
+		// @ts-ignore: A spread argument must either have a tuple type or be passed to a rest parameter.
+		try {
+			return func(this.tracks[trackIndex].points, ...args)
+		} catch (error) {
+			throw new Error(
+				`An error occurred in the applyToTrack function.\n${error}\n
+				Check that the track index is valid, and that the function has the correct arguments.`
+			)
+		}
+	}
+
+	applyToRoute(
+		routeIndex: number,
+		func: MathHelperFunction,
+		...args: any[]
+	): ReturnType<MathHelperFunction> {
+		// Ensure that the route index is valid
+		if (routeIndex < 0 || routeIndex >= this.routes.length) {
+			console.error("The route index is out of bounds.")
+			return
+		}
+
+		// @ts-ignore: A spread argument must either have a tuple type or be passed to a rest parameter.
+		try {
+			return func(this.routes[routeIndex].points, ...args)
+		} catch (error) {
+			throw new Error(
+				`An error occurred in the applyToRoute function.\n${error}\n
+				Check that the route index is valid, and that the function has the correct arguments.`
+			)
+		}
 	}
 }

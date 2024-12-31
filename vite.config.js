@@ -17,9 +17,10 @@ export default defineConfig({
     },
     test: {
         browser: {
-          enabled: true,
-          name: 'chrome',
-          headless: true,
+            provider: 'playwright',
+            enabled: true,
+            name: 'chromium',
+            headless: true,
         },
     },
     plugins: [dts()],

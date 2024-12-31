@@ -1,12 +1,18 @@
 import { Point, Distance, Elevation, Duration, Options } from "./types"
 
+import { DEFAULT_OPTIONS } from "./options"
+
+export type MathHelperFunction = (points: Point[], ...args: any[]) => any
+
 /**
  * Calculates the distances along a series of points using the haversine formula internally.
  *
  * @param points An array containing points with latitudes and longitudes
  * @returns A distance object containing the total distance and the cumulative distances
  */
-export const calculateDistance = (points: Point[]): Distance => {
+export const calculateDistance: MathHelperFunction = (
+	points: Point[]
+): Distance => {
 	const cumulativeDistance = [0]
 
 	// Incrementally calculate the distance between adjacent points until
@@ -58,10 +64,10 @@ export const haversineDistance = (point1: Point, point2: Point): number => {
  * @returns A duration object
  */
 
-export const calculateDuration = (
+export const calculateDuration: MathHelperFunction = (
 	points: Point[],
 	distance: Distance,
-	calculOptions: Options
+	calculOptions: Options = DEFAULT_OPTIONS
 ): Duration => {
 	const { avgSpeedThreshold } = calculOptions
 	const allTimedPoints: { time: Date; distance: number }[] = []
@@ -139,7 +145,9 @@ export const calculateDuration = (
  * @param points A list of points with an elevation
  * @returns An elevation object containing details about the elevation of the points
  */
-export const calculateElevation = (points: Point[]): Elevation => {
+export const calculateElevation: MathHelperFunction = (
+	points: Point[]
+): Elevation => {
 	let dp = 0
 	let dn = 0
 	const elevation = []
@@ -190,7 +198,7 @@ export const calculateElevation = (points: Point[]): Elevation => {
  * @param cumulativeDistance A list of cumulative distances aquired through the `calculateDistance` method
  * @returns A list of slopes between the given points
  */
-export const calculateSlopes = (
+export const calculateSlopes: MathHelperFunction = (
 	points: Point[],
 	cumulativeDistance: number[]
 ): number[] => {

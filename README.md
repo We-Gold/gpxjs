@@ -95,18 +95,26 @@ const totalDistance = gpx.tracks[0].distance.total
 const extensions = gpx.tracks[1].extensions
 ```
 
-### Export to GeoJSON
+### Use parsedGPX functions
 
 ```js
+/// export to GPX
 const geoJSON = parsedGPX.toGeoJSON()
-```
 
-### Export to GPX
 
-```js
+/// stringify GPX function
 import { stringifyGPX } from "@we-gold/gpxjs"
 
 const xmlAsString = stringifyGPX(parsedGPX);
+
+// math functions
+import { calculateDistance, calculateDuration, calculateElevation, calculateSlopes } from "@we-gold/gpxjs"
+
+/// recalculates the distance, duration, elevation, and slopes of the track
+const dist = parsedGPX.applyToTrack(0, calculateDistance);
+const dur = parsedGPX.applyToTrack(0, calculateDuration);
+const elev = parsedGPX.applyToTrack(0, calculateElevation);
+const slope = parsedGPX.applyToTrack(0, calculateSlopes, dist.cumulative)
 ```
 
 ### Using a Custom DOM Parser
@@ -140,6 +148,8 @@ If you do know how to fix it, please leave a PR, as I cannot guarantee how soon 
 I do try to be responsive to PRs though, so if you leave one I'll try to get it merged asap.
 
 Also, there are some basic tests built in to the library, so please test your code before you try to get it merged (_just to make sure everything is backwards compatible_). Use `npm run test` to do this.
+
+You will need _playwright_ installed to run the tests. Use `npx playwright install` to install it. Follow any additional instructions given by the installer to ensure it works on your operating system.
 
 ## Options
 

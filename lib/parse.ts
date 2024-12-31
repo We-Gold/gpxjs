@@ -96,18 +96,18 @@ export const parseGPXWithCustomParser = (
 				email:
 					emailElement !== null
 						? {
-							id: emailElement.getAttribute("id") ?? "",
-							domain:
-								emailElement.getAttribute("domain") ?? "",
-						}
+								id: emailElement.getAttribute("id") ?? "",
+								domain:
+									emailElement.getAttribute("domain") ?? "",
+						  }
 						: null,
 				link:
 					linkElement !== null
 						? {
-							href: linkElement.getAttribute("href") ?? "",
-							text: getElementValue(linkElement, "text"),
-							type: getElementValue(linkElement, "type"),
-						}
+								href: linkElement.getAttribute("href") ?? "",
+								text: getElementValue(linkElement, "text"),
+								type: getElementValue(linkElement, "type"),
+						  }
 						: null,
 			}
 		}
@@ -214,7 +214,11 @@ export const parseGPXWithCustomParser = (
 		}
 
 		route.distance = calculateDistance(route.points)
-		route.duration = calculateDuration(route.points, route.distance, options)
+		route.duration = calculateDuration(
+			route.points,
+			route.distance,
+			options
+		)
 		route.elevation = calculateElevation(route.points)
 		route.slopes = calculateSlopes(route.points, route.distance.cumulative)
 
@@ -289,7 +293,9 @@ export const parseGPXWithCustomParser = (
 				point.extensions = extensions
 			}
 
-			const rawElevation = parseFloat(getElementValue(trackPoint, "ele") ?? "")
+			const rawElevation = parseFloat(
+				getElementValue(trackPoint, "ele") ?? ""
+			)
 			point.elevation = isNaN(rawElevation) ? null : rawElevation
 
 			const rawTime = getElementValue(trackPoint, "time")
@@ -299,7 +305,11 @@ export const parseGPXWithCustomParser = (
 		}
 
 		track.distance = calculateDistance(track.points)
-		track.duration = calculateDuration(track.points, track.distance, options)
+		track.duration = calculateDuration(
+			track.points,
+			track.distance,
+			options
+		)
 		track.elevation = calculateElevation(track.points)
 		track.slopes = calculateSlopes(track.points, track.distance.cumulative)
 
@@ -313,7 +323,7 @@ export const parseGPXWithCustomParser = (
 		deleteNullFields(output.routes)
 	}
 
-	return [new ParsedGPX(output, options.removeEmptyFields), null]
+	return [new ParsedGPX(output, options), null]
 }
 
 const parseExtensions = (
@@ -393,7 +403,7 @@ const querySelectDirectDescendant = (
 
 export const deleteNullFields = <T>(object: T) => {
 	// Return non-object values as-is
-	if (typeof object !== 'object' || object === null || object === undefined) {
+	if (typeof object !== "object" || object === null || object === undefined) {
 		return
 	}
 
