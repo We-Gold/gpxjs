@@ -26,6 +26,11 @@ export default defineConfig({
 			headless: true,
 			instances: [{ browser: 'chromium' }],
 		},
+		coverage: {
+			provider: 'v8',
+			include: ['lib/**'],
+			reporter: ['text', 'json-summary', 'html'],
+		},
 	},
 	plugins: [
 		dts({

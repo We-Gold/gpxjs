@@ -4,6 +4,8 @@ on:
         branches: [main]
     pull_request:
         branches: [main]
+permissions:
+    contents: write
 jobs:
     test:
         runs-on: ubuntu-latest
@@ -16,4 +18,13 @@ jobs:
             - run: npx biome check .
             - run: npx playwright install --with-deps chromium
             - run: npm run build
-            - run: npx vitest run
+            - run: npm run coverage
+            - name: Update coverage badge
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+              run: |
+                  node scripts/generate-coverage-badge.mjs
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add badges/coverage.json
+                  git diff --staged --quiet || git commit -m "Update coverage badge"
+                  git push

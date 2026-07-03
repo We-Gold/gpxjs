@@ -4,6 +4,7 @@
 ![ViewCount](https://views.whatilearened.today/views/github/We-Gold/gpxjs.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ![NPM Downloads](https://img.shields.io/npm/dw/@we-gold/gpxjs)
+![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/We-Gold/gpxjs/main/badges/coverage.json)
 
 # GPX.JS
 
