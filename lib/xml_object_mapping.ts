@@ -229,8 +229,15 @@ export function readObject(
 ) {
 	initializeDefaults(mapping, dstObj)
 
+	// Group the element's direct children by tag name once, up front, rather
+	// than re-scanning them for every field in the mapping. A single element
+	// (e.g. a track point) can have ~20 fields, so doing an independent
+	// child lookup per field turns parsing into O(fields * children) with a
+	// large constant, which dominated the xmldom-qsa parse time (issue #32).
+	const childrenByTag = groupChildElements(srcElem)
+
 	for (const xmlName in mapping) {
-		readField(xmlName, mapping[xmlName], srcElem, dstObj)
+		readField(xmlName, mapping[xmlName], srcElem, childrenByTag, dstObj)
 	}
 }
 
@@ -238,6 +245,7 @@ function readField(
 	xmlName: string,
 	mapping: FieldMapping,
 	srcElem: Element,
+	childrenByTag: Map<string, Element[]>,
 	dstObj: any
 ) {
 	const { isAttribute, name, targetField } = resolveField(xmlName, mapping)
@@ -246,13 +254,13 @@ function readField(
 		case 'scalar': {
 			const raw = isAttribute
 				? srcElem.getAttribute(name)
-				: getElementValue(srcElem, name)
+				: getElementValue(childrenByTag, name)
 			dstObj[targetField] = coerceValue(raw, mapping.type)
 			return
 		}
 		case 'object': {
-			const childElems = directChildElements(srcElem, name)
-			if (childElems.length === 0) return
+			const childElems = childrenByTag.get(name)
+			if (childElems === undefined) return
 
 			const target = mapping.self ? dstObj : {}
 			readObject(mapping.fields, childElems[0], target)
@@ -269,6 +277,7 @@ function readField(
 			// in from a later instance if the first instance left it at its
 			// default, since there's no clear way to merge two scalars.
 			for (const extraElem of childElems.slice(1)) {
+				const extraChildrenByTag = groupChildElements(extraElem)
 				for (const extraXmlName in mapping.fields) {
 					const extraFieldMapping = mapping.fields[extraXmlName]
 					const { targetField: extraTargetField } = resolveField(
@@ -283,6 +292,7 @@ function readField(
 							extraXmlName,
 							extraFieldMapping,
 							extraElem,
+							extraChildrenByTag,
 							target
 						)
 					}
@@ -291,7 +301,9 @@ function readField(
 			return
 		}
 		case 'array': {
-			for (const childElem of directChildElements(srcElem, name)) {
+			const childElems = childrenByTag.get(name)
+			if (childElems === undefined) return
+			for (const childElem of childElems) {
 				const item = {}
 				readObject(mapping.items, childElem, item)
 				;(dstObj[targetField] as any[]).push(item)
@@ -299,7 +311,7 @@ function readField(
 			return
 		}
 		case 'custom': {
-			const childElem = directChildElements(srcElem, name)[0]
+			const childElem = childrenByTag.get(name)?.[0]
 			if (childElem === undefined) return
 			dstObj[targetField] = mapping.read(childElem)
 			return
@@ -385,14 +397,18 @@ function coerceValue(raw: string | null, type?: FieldType) {
 }
 
 /**
- * Extracts a value from a direct child of the given element, by tag name.
+ * Extracts the text value of the first direct child with the given tag name,
+ * or null if there is no such child.
  *
- * @param parent An element to extract a value from
+ * @param childrenByTag The parent's direct children, grouped by tag name
  * @param tag The tag of the child element that contains the desired data (e.g. "time" or "name")
  * @returns A string containing the desired value
  */
-function getElementValue(parent: Element, tag: string): string | null {
-	const element = directChildElements(parent, tag)[0]
+function getElementValue(
+	childrenByTag: Map<string, Element[]>,
+	tag: string
+): string | null {
+	const element = childrenByTag.get(tag)?.[0]
 
 	if (element !== undefined) {
 		return element.firstChild?.textContent ?? element.innerHTML ?? null
@@ -401,25 +417,41 @@ function getElementValue(parent: Element, tag: string): string | null {
 }
 
 /**
- * Finds the direct children of the given element that match the given tag
- * name. Restricting the search to direct children (rather than any
- * descendant) avoids accidentally matching a same-named tag nested further
- * down, e.g. a track's own `<type>` versus its `<link><type>`.
+ * Groups an element's direct child elements by tag name, in document order.
  *
- * @param parent A parent element to search within
- * @param tag The tag of the child elements to search for
- * @returns The matching direct child elements, in document order
+ * Restricting to direct children (rather than any descendant) avoids
+ * accidentally matching a same-named tag nested further down, e.g. a track's
+ * own `<type>` versus its `<link><type>`. Grouping all children in a single
+ * pass lets `readObject` look each field up by tag name instead of
+ * re-scanning the children (or, worse, re-running a `querySelectorAll`) once
+ * per field. See the note in `readObject` for why this matters (issue #32).
+ *
+ * @param parent A parent element to collect the children of
+ * @returns A map from tag name to the matching direct child elements
  */
-function directChildElements(parent: Element, tag: string): Element[] {
-	try {
-		// Find all matching direct descendants
-		return Array.from(parent.querySelectorAll(`:scope > ${tag}`))
-	} catch (_e) {
-		// Handle non-browser or older environments that don't support :scope
-		return (Array.from(parent.childNodes) as unknown as Element[]).filter(
-			(element) => element && element.tagName === tag
-		)
+function groupChildElements(parent: Element): Map<string, Element[]> {
+	const childrenByTag = new Map<string, Element[]>()
+
+	const children = parent.childNodes
+	for (let i = 0; i < children.length; i++) {
+		const node = children[i]
+		// Element nodes only; skip text, comments, etc. Matching by tagName
+		// (rather than a CSS type selector) is namespace-insensitive in the
+		// same way the previous querySelectorAll-free fallback path was, which
+		// is what GPX's default-namespaced elements need.
+		if (node.nodeType !== 1) continue
+		const element = node as unknown as Element
+		const tag = element.tagName
+
+		const existing = childrenByTag.get(tag)
+		if (existing !== undefined) {
+			existing.push(element)
+		} else {
+			childrenByTag.set(tag, [element])
+		}
 	}
+
+	return childrenByTag
 }
 
 /* v8 ignore start -- only reachable if a new FieldMapping kind is added

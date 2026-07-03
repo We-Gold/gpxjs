@@ -46,26 +46,29 @@ export function writeExtensions(
 export function readExtensions(srcElem: Element): Extensions {
 	const extensions: Extensions = {}
 
-	Array.from(srcElem.childNodes)
-		.filter((child: ChildNode) => child.nodeType === 1)
-		.forEach((child: ChildNode) => {
-			const tagName = child.nodeName
-			if (
-				child.childNodes?.length === 1 &&
-				child.childNodes[0].nodeType === 3 &&
-				child.childNodes[0].textContent
-			) {
-				const textContent = child.childNodes[0].textContent.trim()
-				const value = Number.isNaN(+textContent)
-					? textContent
-					: parseFloat(textContent)
-				extensions[tagName] = value
-			} else {
-				extensions[tagName] = readExtensions(
-					child as unknown as Element
-				)
-			}
-		})
+	// Walk childNodes directly rather than Array.from(...).filter().forEach():
+	// this runs once per point on a track, and the intermediate array plus
+	// per-child closures were needless allocation (issue #32).
+	const children = srcElem.childNodes
+	for (let i = 0; i < children.length; i++) {
+		const child = children[i]
+		if (child.nodeType !== 1) continue
+
+		const tagName = child.nodeName
+		if (
+			child.childNodes?.length === 1 &&
+			child.childNodes[0].nodeType === 3 &&
+			child.childNodes[0].textContent
+		) {
+			const textContent = child.childNodes[0].textContent.trim()
+			const value = Number.isNaN(+textContent)
+				? textContent
+				: parseFloat(textContent)
+			extensions[tagName] = value
+		} else {
+			extensions[tagName] = readExtensions(child as unknown as Element)
+		}
+	}
 
 	return extensions
 }

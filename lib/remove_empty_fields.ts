@@ -19,9 +19,16 @@ export function removeEmptyFields<T>(value: T): T {
 		return value.map(removeEmptyFields) as T
 	}
 
-	const entries = Object.entries(value)
-		.filter(([, fieldValue]) => fieldValue != null)
-		.map(([key, fieldValue]) => [key, removeEmptyFields(fieldValue)])
+	// Build the cleaned object in a single pass. Object.entries().filter().map()
+	// + Object.fromEntries() is a more declarative way to write this, but it
+	// allocates an entries array, a `[key, value]` pair per field, and two more
+	// arrays before rebuilding the object; on a large track this runs once per
+	// point and showed up as a real share of parse time (issue #32).
+	const result: Record<string, unknown> = {}
+	for (const key of Object.keys(value)) {
+		const fieldValue = (value as Record<string, unknown>)[key]
+		if (fieldValue != null) result[key] = removeEmptyFields(fieldValue)
+	}
 
-	return Object.fromEntries(entries) as T
+	return result as T
 }
