@@ -8,13 +8,17 @@ import { testGPXFile } from './test-gpx-file'
 
 describe('stringfy', () => {
 	test('converts ParsedGPX to string', () => {
-		const [gpx, _error] = parseGPX(testGPXFile)
+		const [gpx, error] = parseGPX(testGPXFile)
+		if (error) throw error
+
 		const xml = stringifyGPX(gpx)
 		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
 	})
 
 	test('converts ParsedGPX to string with custom XMLSerializer', () => {
-		const [gpx, _error] = parseGPX(testGPXFile)
+		const [gpx, error] = parseGPX(testGPXFile)
+		if (error) throw error
+
 		const xml = stringifyGPX(gpx, new QsaXMLSerializer())
 		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
 	})
@@ -109,7 +113,7 @@ const XSLT_PRETTY_PRINT = [
 	'</xsl:stylesheet>',
 ].join('\n')
 
-function prettyPrintXml(xml) {
+function prettyPrintXml(xml: string): string {
 	const parser = new DOMParser()
 
 	const xsltDoc = parser.parseFromString(XSLT_PRETTY_PRINT, 'text/xml')

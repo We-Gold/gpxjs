@@ -24,7 +24,7 @@ test('Default parsing returns expected result', () => {
 	// Verify that the parsing was successful
 	if (error) throw error
 
-	assertType < XMLDocument > parsedGPX.xml
+	assertType<Document>(parsedGPX.xml)
 
 	// Test metadata from test file
 	expect(expectedMetadata).toStrictEqual(parsedGPX.metadata)
@@ -49,7 +49,7 @@ test('Default parsing returns expected result', () => {
 })
 
 test('Non-browser parsing returns expected result', () => {
-	const customParseMethod = (txt) => {
+	const customParseMethod = (txt: string) => {
 		return new DOMParser().parseFromString(txt, 'text/xml')
 	}
 
@@ -61,7 +61,7 @@ test('Non-browser parsing returns expected result', () => {
 	// Verify that the parsing was successful
 	if (error) throw error
 
-	assertType < XMLDocument > parsedGPX.xml
+	assertType<Document>(parsedGPX.xml)
 
 	// Test metadata from test file
 	expect(expectedMetadata).toStrictEqual(parsedGPX.metadata)
