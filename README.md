@@ -166,10 +166,10 @@ _Last updated 2026-07-03 by `npm run bench:update-readme`, normally run in CI on
 
 | Environment | Operation | Mean time | Ops/sec |
 | --- | --- | --- | --- |
-| Node (xmldom-qsa) | parseGPXWithCustomParser: parses a 10000-point track | 107.63 ms | 9.29 (±5.03%) |
-| Node (xmldom-qsa) | toGeoJSON: converts a 10000-point track | 0.661 ms | 1,512 (±2.63%) |
-| Browser (DOMParser) | parseGPX: parses a 10000-point track | 78.46 ms | 12.75 (±1.66%) |
-| Browser (DOMParser) | toGeoJSON: converts a 10000-point track | 0.505 ms | 1,980 (±1.16%) |
+| Node (xmldom-qsa) | parseGPXWithCustomParser: parses a 10000-point track | 225.12 ms | 4.44 (±7.84%) |
+| Node (xmldom-qsa) | toGeoJSON: converts a 10000-point track | 0.803 ms | 1,245 (±1.55%) |
+| Browser (DOMParser) | parseGPX: parses a 10000-point track | 167.02 ms | 5.99 (±4.09%) |
+| Browser (DOMParser) | toGeoJSON: converts a 10000-point track | 1.05 ms | 950 (±5.01%) |
 <!-- BENCHMARKS:END -->
 
 ## Options
