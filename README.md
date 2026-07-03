@@ -157,6 +157,21 @@ Also, there are some basic tests built in to the library, so please test your co
 
 You will need _playwright_ installed to run the tests. Use `npx playwright install` to install it. Follow any additional instructions given by the installer to ensure it works on your operating system.
 
+If your change might affect performance, run `npm run bench` before and after to compare. It benchmarks `parseGPX`/`parseGPXWithCustomParser` and `toGeoJSON` separately, for both the browser DOMParser path and the non-browser xmldom-qsa path, since they perform quite differently.
+
+## Benchmarks
+
+<!-- BENCHMARKS:START -->
+_Last updated 2026-07-03 by `npm run bench:update-readme`, normally run in CI on push to `main`. Shared CI hardware is noisy, so treat these as a rough trend rather than a precise number; run `npm run bench` locally to compare branches on the same machine._
+
+| Environment | Operation | Mean time | Ops/sec |
+| --- | --- | --- | --- |
+| Node (xmldom-qsa) | parseGPXWithCustomParser: parses a 10000-point track | 1192.68 ms | 0.84 (±10.09%) |
+| Node (xmldom-qsa) | toGeoJSON: converts a 10000-point track | 0.681 ms | 1,468 (±2.31%) |
+| Browser (DOMParser) | parseGPX: parses a 10000-point track | 84.46 ms | 11.84 (±2.04%) |
+| Browser (DOMParser) | toGeoJSON: converts a 10000-point track | 0.527 ms | 1,897 (±1.11%) |
+<!-- BENCHMARKS:END -->
+
 ## Options
 
 You can also run `parseGPX()` with custom options for more control over the parsing process. See [options.ts](./lib/options.ts) for more details.

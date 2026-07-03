@@ -200,6 +200,13 @@ describe('array fields', () => {
 		readObject(mapping, parseXml('<root/>'), read)
 		expect(read).toStrictEqual({ items: [] })
 	})
+
+	test('does not write any elements when the source field is null or undefined', () => {
+		expect(
+			writeXml(mapping, { items: null }).querySelector('item')
+		).toBeNull()
+		expect(writeXml(mapping, {}).querySelector('item')).toBeNull()
+	})
 })
 
 describe('unwrap (self) fields', () => {
@@ -276,5 +283,23 @@ describe('custom fields', () => {
 		const read: any = {}
 		readObject(mapping, parseXml('<root/>'), read)
 		expect(read).toStrictEqual({ payload: null })
+	})
+
+	test('does not overwrite a value already present on the destination object', () => {
+		// initializeDefaults only fills in a default when the field is
+		// undefined; a value set before readObject runs should survive.
+		const read: any = { payload: { existing: true } }
+		readObject(mapping, parseXml('<root/>'), read)
+		expect(read).toStrictEqual({ payload: { existing: true } })
+	})
+})
+
+describe('reading an empty element', () => {
+	test('falls back to innerHTML (empty string) when there is no text node', () => {
+		const mapping = { name: scalar() }
+
+		const read: any = {}
+		readObject(mapping, parseXml('<root><name></name></root>'), read)
+		expect(read).toStrictEqual({ name: '' })
 	})
 })

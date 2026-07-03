@@ -29,3 +29,6 @@ test/__screenshots__
 # Misc testing files
 src/test_files/biking.gpx
 src/test_files/walking.gpx
+
+# Raw benchmark output; only the README summary generated from it is committed
+bench/results.json

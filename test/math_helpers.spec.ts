@@ -96,6 +96,22 @@ describe('calculateElevation', () => {
 		})
 	})
 
+	test('treats equal consecutive elevations as neither gain nor loss', () => {
+		const points = [
+			point({ elevation: 10 }),
+			point({ elevation: 10 }),
+			point({ elevation: 15 }),
+		]
+
+		expect(calculateElevation(points)).toStrictEqual({
+			maximum: 15,
+			minimum: 10,
+			positive: 5,
+			negative: null,
+			average: 35 / 3,
+		})
+	})
+
 	test('skips points without an elevation rather than treating them as zero', () => {
 		const points = [
 			point({ elevation: 10 }),
@@ -184,5 +200,114 @@ describe('calculateDuration', () => {
 		expect(strict.totalDuration).toBe(1)
 		expect(permissive.movingDuration).toBe(1)
 		expect(strict.movingDuration).toBe(0)
+	})
+
+	test('only looks back 10 seconds when averaging speed', () => {
+		// The average-speed window only looks back 10 seconds, so an older
+		// point (here, 11 seconds before the last) should be excluded from
+		// the calculation rather than skewing it.
+		const points = [
+			point({
+				latitude: 45.0,
+				longitude: -1.0,
+				time: new Date('2020-01-01T00:00:00Z'),
+			}),
+			point({
+				latitude: 45.0009,
+				longitude: -1.0,
+				time: new Date('2020-01-01T00:00:11Z'),
+			}),
+			point({
+				latitude: 45.0018,
+				longitude: -1.0,
+				time: new Date('2020-01-01T00:00:12Z'),
+			}),
+		]
+		const distance = calculateDistance(points)
+
+		const { totalDuration, movingDuration } = calculateDuration(
+			points,
+			distance
+		)
+
+		// The last point is 12s after the first, but the lookback window used
+		// to average speed only covers the last 10s of movement, so it
+		// contributes nothing to the moving duration here.
+		expect(totalDuration).toBe(11)
+		expect(movingDuration).toBe(0)
+	})
+
+	test('skips an untimed point within the speed-averaging lookback window', () => {
+		// The lookback loop walks backward over every prior point, not just
+		// timed ones, so it needs to tolerate one with no time in the middle
+		// of the window without breaking the average.
+		const points = [
+			point({
+				latitude: 45.0,
+				longitude: -1.0,
+				time: new Date('2020-01-01T00:00:00Z'),
+			}),
+			point({ time: null }),
+			point({
+				latitude: 45.0018,
+				longitude: -1.0,
+				time: new Date('2020-01-01T00:00:02Z'),
+			}),
+			point({
+				latitude: 45.0027,
+				longitude: -1.0,
+				time: new Date('2020-01-01T00:00:03Z'),
+			}),
+		]
+		const distance = calculateDistance(points)
+
+		expect(() => calculateDuration(points, distance)).not.toThrow()
+	})
+
+	test('carries the previous cumulative value forward when a point is missing a time', () => {
+		// The middle point has no time, so it can't contribute to the moving
+		// calculation; its cumulative entry should just repeat the previous one.
+		const points = [
+			point({
+				latitude: 45.0,
+				longitude: -1.0,
+				time: new Date('2020-01-01T00:00:00Z'),
+			}),
+			point({ time: null }),
+			point({
+				latitude: 45.0018,
+				longitude: -1.0,
+				time: new Date('2020-01-01T00:00:02Z'),
+			}),
+		]
+		const distance = calculateDistance(points)
+
+		const { cumulative } = calculateDuration(points, distance)
+
+		// The middle point (index 1) has no time and can't move the
+		// cumulative value forward, so it repeats whatever came before it.
+		expect(cumulative[2]).toBe(cumulative[1])
+	})
+
+	test('carries the previous cumulative value forward when consecutive points share a timestamp', () => {
+		// Two points with the same timestamp produce a non-positive
+		// movingTime, which shouldn't count as movement.
+		const sameTime = new Date('2020-01-01T00:00:00Z')
+		const points = [
+			point({ latitude: 45.0, longitude: -1.0, time: sameTime }),
+			point({ latitude: 45.0009, longitude: -1.0, time: sameTime }),
+			point({
+				latitude: 45.0018,
+				longitude: -1.0,
+				time: new Date('2020-01-01T00:00:02Z'),
+			}),
+		]
+		const distance = calculateDistance(points)
+
+		const { cumulative } = calculateDuration(points, distance)
+
+		// The second point shares its timestamp with the first, so
+		// movingTime is 0 and its cumulative entry repeats the first's.
+		expect(cumulative[2]).toBe(cumulative[1])
 	})
 })
