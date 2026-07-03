@@ -18,6 +18,14 @@ The schema for GPX, a commonly used gps tracking format, can be found here: [GPX
 
 See [Documentation](#documentation) for more details on how GPX data is represented by the library.
 
+## Documentation
+
+The [`docs/`](./docs) folder holds longer-form guides that don't belong inline here, including:
+
+- [Migrating to 1.2.0](./docs/migration-1.2.0.md) — breaking and additive changes in the 1.2.0 release.
+
+For the shape of the parsed output, see [Types](#types) below and [types.ts](./lib/types.ts).
+
 ## Usage
 
 **This library does include support for non-browser execution.**
