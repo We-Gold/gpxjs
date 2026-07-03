@@ -25,6 +25,10 @@ export class ParsedGPX {
 	public routes: Route[]
 	/** Extensions on the root `<gpx>` element itself. */
 	public extensions: Extensions | null
+	/** The `version` attribute of the root `<gpx>` element, e.g. `"1.1"`. */
+	public version: string | null
+	/** The `creator` attribute of the root `<gpx>` element, e.g. `"Garmin Connect"`. */
+	public creator: string | null
 	private options: Options
 
 	constructor(
@@ -35,6 +39,8 @@ export class ParsedGPX {
 			tracks,
 			routes,
 			extensions,
+			version,
+			creator,
 		}: ParsedGPXInputs,
 		options: Options
 	) {
@@ -44,6 +50,8 @@ export class ParsedGPX {
 		this.tracks = tracks
 		this.routes = routes
 		this.extensions = extensions
+		this.version = version
+		this.creator = creator
 		this.options = options
 	}
 

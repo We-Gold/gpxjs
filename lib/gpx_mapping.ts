@@ -109,6 +109,8 @@ const WPT_TYPE_FIELDS: ObjectMapping = {
 }
 
 export const GPX_MAPPING: ObjectMapping = {
+	'@version': scalar({ type: 'attrString' }),
+	'@creator': scalar({ type: 'attrString' }),
 	metadata: object({
 		name: scalar(),
 		desc: scalar({ expr: 'description' }),

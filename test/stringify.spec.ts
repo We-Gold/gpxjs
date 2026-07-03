@@ -43,6 +43,22 @@ describe('stringfy', () => {
 		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
 	})
 
+	test('falls back to default version/creator when the source has neither', () => {
+		const gpxWithoutRootAttrs = testGPXFile.replace(
+			'<gpx version="1.1" creator="Test Creator">',
+			'<gpx>'
+		)
+		const [gpx, error] = parseGPX(gpxWithoutRootAttrs)
+		if (error) throw error
+		expect(gpx.version).toBe('')
+		expect(gpx.creator).toBe('')
+
+		const [xml, stringifyError] = stringifyGPX(gpx)
+		if (stringifyError) throw stringifyError
+		expect(xml).toContain('version="1.1"')
+		expect(xml).toContain('creator="gpxjs"')
+	})
+
 	test('returns an error instead of throwing when serialization fails', () => {
 		const [gpx, error] = parseGPX(testGPXFile)
 		if (error) throw error
@@ -75,7 +91,7 @@ describe('stringfy', () => {
 	})
 })
 
-const EXPECTED_XML = `<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="gpxjs">
+const EXPECTED_XML = `<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="Test Creator">
   <metadata>
     <name>GPX Test</name>
     <desc>Test Description</desc>

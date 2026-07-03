@@ -194,13 +194,16 @@ These descriptions are adapted from [GPXParser.js](https://github.com/Luuka/GPXP
 
 For specific type definition, see [types.ts](./lib/types.ts).
 
-| Property  | Type               | Description                         |
-| --------- | ------------------ | ----------------------------------- |
-| xml       | XML Document       | XML Document parsed from GPX string |
-| metadata  | Metadata object    | File metadata                       |
-| waypoints | Array of Waypoints | Array of waypoints                  |
-| tracks    | Array of Tracks    | Array of waypoints of tracks        |
-| routes    | Array of Routes    | Array of waypoints of routes        |
+| Property   | Type               | Description                                       |
+| ---------- | ------------------ | -------------------------------------------------- |
+| xml        | XML Document       | XML Document parsed from GPX string                |
+| metadata   | Metadata object    | File metadata                                      |
+| waypoints  | Array of Waypoints | Array of waypoints                                 |
+| tracks     | Array of Tracks    | Array of waypoints of tracks                       |
+| routes     | Array of Routes    | Array of waypoints of routes                       |
+| extensions | Object             | Arbitrary extra data from the root `<extensions>`  |
+| version    | String             | The `version` attribute of the root `<gpx>` element |
+| creator    | String             | The `creator` attribute of the root `<gpx>` element |
 
 ### Metadata
 
