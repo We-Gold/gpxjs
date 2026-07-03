@@ -20,17 +20,42 @@ export default defineConfig({
 		},
 	},
 	test: {
-		browser: {
-			provider: playwright(),
-			enabled: true,
-			headless: true,
-			instances: [{ browser: 'chromium' }],
-		},
 		coverage: {
 			provider: 'v8',
 			include: ['lib/**'],
 			reporter: ['text', 'json-summary', 'html'],
 		},
+		// Split into two projects because the library targets two different
+		// runtimes: `parseGPX` relies on the browser's DOMParser, while
+		// `parseGPXWithCustomParser` (used with xmldom-qsa) is meant for
+		// Node.js and other non-browser environments like React Native. The
+		// "node" project runs in a real Node environment with no `window` or
+		// `document` globals, so it can actually exercise the non-browser
+		// code paths instead of just simulating them inside a browser.
+		projects: [
+			{
+				extends: true,
+				test: {
+					name: 'browser',
+					include: ['test/**/*.spec.ts'],
+					exclude: ['test/node/**'],
+					browser: {
+						provider: playwright(),
+						enabled: true,
+						headless: true,
+						instances: [{ browser: 'chromium' }],
+					},
+				},
+			},
+			{
+				extends: true,
+				test: {
+					name: 'node',
+					environment: 'node',
+					include: ['test/node/**/*.spec.ts'],
+				},
+			},
+		],
 	},
 	plugins: [
 		dts({

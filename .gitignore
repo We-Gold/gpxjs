@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 coverage
+.vitest-attachments
+test/__screenshots__
 *.local
 
 # Editor directories and files
