@@ -106,17 +106,21 @@ const geoJSON = parsedGPX.toGeoJSON()
 /// stringify GPX function
 import { stringifyGPX } from "@we-gold/gpxjs"
 
-const xmlAsString = stringifyGPX(parsedGPX);
+const [xmlAsString, stringifyError] = stringifyGPX(parsedGPX);
+if (stringifyError) throw stringifyError;
 
 // math functions
 import { calculateDistance, calculateDuration, calculateElevation, calculateSlopes } from "@we-gold/gpxjs"
 
 /// recalculates the distance, duration, elevation, and slopes of the track
-const dist = parsedGPX.applyToTrack(0, calculateDistance);
-const dur = parsedGPX.applyToTrack(0, calculateDuration);
-const elev = parsedGPX.applyToTrack(0, calculateElevation);
-const slope = parsedGPX.applyToTrack(0, calculateSlopes, dist.cumulative)
+const [dist, distError] = parsedGPX.applyToTrack(0, calculateDistance);
+if (distError) throw distError;
+const [dur] = parsedGPX.applyToTrack(0, calculateDuration);
+const [elev] = parsedGPX.applyToTrack(0, calculateElevation);
+const [slope] = parsedGPX.applyToTrack(0, calculateSlopes, dist.cumulative)
 ```
+
+_`applyToTrack`/`applyToRoute` return a `[result, error]` tuple, the same convention as `parseGPX`: `error` is set if the track/route index is out of bounds or the supplied function throws, in which case `result` is `null`._
 
 ### Using a Custom DOM Parser
 
@@ -137,7 +141,8 @@ const [parsedFile, error] = parseGPXWithCustomParser(
 	customParseMethod
 )
 
-const xml = stringifyGPX(parsedFile, new XMLSerializer());
+const [xml, stringifyError] = stringifyGPX(parsedFile, new XMLSerializer());
+if (stringifyError) throw stringifyError;
 ```
 
 # Contribution

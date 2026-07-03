@@ -1,6 +1,5 @@
 import type { MathHelperFunction } from './math_helpers'
-
-import { deleteNullFields } from './parse'
+import { removeEmptyFields } from './remove_empty_fields'
 import type {
 	Feature,
 	GeoJSON,
@@ -116,29 +115,31 @@ export class ParsedGPX {
 			GeoJSON.features.push(feature)
 		}
 
-		if (this.options.removeEmptyFields) deleteNullFields(GeoJSON)
-
-		return GeoJSON
+		return this.options.removeEmptyFields
+			? removeEmptyFields(GeoJSON)
+			: GeoJSON
 	}
 
 	applyToTrack(
 		trackIndex: number,
 		func: MathHelperFunction,
 		...args: any[]
-	): ReturnType<MathHelperFunction> {
+	): [ReturnType<MathHelperFunction>, null] | [null, Error] {
 		// Ensure that the track index is valid
 		if (trackIndex < 0 || trackIndex >= this.tracks.length) {
-			console.error('The track index is out of bounds.')
-			return
+			return [null, new Error('The track index is out of bounds.')]
 		}
 
 		try {
-			return func(this.tracks[trackIndex].points, ...args)
+			return [func(this.tracks[trackIndex].points, ...args), null]
 		} catch (error) {
-			throw new Error(
-				`An error occurred in the applyToTrack function.\n${error}\n
-				Check that the track index is valid, and that the function has the correct arguments.`
-			)
+			return [
+				null,
+				new Error(
+					`An error occurred in the applyToTrack function.\n${error}\n
+					Check that the track index is valid, and that the function has the correct arguments.`
+				),
+			]
 		}
 	}
 
@@ -146,20 +147,22 @@ export class ParsedGPX {
 		routeIndex: number,
 		func: MathHelperFunction,
 		...args: any[]
-	): ReturnType<MathHelperFunction> {
+	): [ReturnType<MathHelperFunction>, null] | [null, Error] {
 		// Ensure that the route index is valid
 		if (routeIndex < 0 || routeIndex >= this.routes.length) {
-			console.error('The route index is out of bounds.')
-			return
+			return [null, new Error('The route index is out of bounds.')]
 		}
 
 		try {
-			return func(this.routes[routeIndex].points, ...args)
+			return [func(this.routes[routeIndex].points, ...args), null]
 		} catch (error) {
-			throw new Error(
-				`An error occurred in the applyToRoute function.\n${error}\n
-				Check that the route index is valid, and that the function has the correct arguments.`
-			)
+			return [
+				null,
+				new Error(
+					`An error occurred in the applyToRoute function.\n${error}\n
+					Check that the route index is valid, and that the function has the correct arguments.`
+				),
+			]
 		}
 	}
 }

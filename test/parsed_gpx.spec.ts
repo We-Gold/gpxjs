@@ -1,43 +1,37 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { calculateDistance, parseGPX } from '../lib/index'
 
 import { noTimeNoElevationGPXFile } from './edge-case-fixtures'
 import { testGPXFile } from './test-gpx-file'
 
 describe('applyToTrack / applyToRoute', () => {
-	test('applyToTrack logs an error and returns undefined for an out-of-bounds index', () => {
+	test('applyToTrack returns an error for an out-of-bounds index', () => {
 		const [parsedGPX, error] = parseGPX(testGPXFile)
 		if (error) throw error
 
-		const consoleError = vi
-			.spyOn(console, 'error')
-			.mockImplementation(() => {})
-
-		expect(parsedGPX.applyToTrack(99, calculateDistance)).toBeUndefined()
-		expect(consoleError).toHaveBeenCalledWith(
-			'The track index is out of bounds.'
+		const [result, applyError] = parsedGPX.applyToTrack(
+			99,
+			calculateDistance
 		)
 
-		consoleError.mockRestore()
+		expect(result).toBeNull()
+		expect(applyError?.message).toBe('The track index is out of bounds.')
 	})
 
-	test('applyToRoute logs an error and returns undefined for an out-of-bounds index', () => {
+	test('applyToRoute returns an error for an out-of-bounds index', () => {
 		const [parsedGPX, error] = parseGPX(testGPXFile)
 		if (error) throw error
 
-		const consoleError = vi
-			.spyOn(console, 'error')
-			.mockImplementation(() => {})
-
-		expect(parsedGPX.applyToRoute(-1, calculateDistance)).toBeUndefined()
-		expect(consoleError).toHaveBeenCalledWith(
-			'The route index is out of bounds.'
+		const [result, applyError] = parsedGPX.applyToRoute(
+			-1,
+			calculateDistance
 		)
 
-		consoleError.mockRestore()
+		expect(result).toBeNull()
+		expect(applyError?.message).toBe('The route index is out of bounds.')
 	})
 
-	test('applyToTrack wraps errors thrown by the supplied function', () => {
+	test('applyToTrack returns an error wrapping one thrown by the supplied function', () => {
 		const [parsedGPX, error] = parseGPX(testGPXFile)
 		if (error) throw error
 
@@ -45,12 +39,15 @@ describe('applyToTrack / applyToRoute', () => {
 			throw new Error('boom')
 		}
 
-		expect(() => parsedGPX.applyToTrack(0, throwingFunction)).toThrow(
+		const [result, applyError] = parsedGPX.applyToTrack(0, throwingFunction)
+
+		expect(result).toBeNull()
+		expect(applyError?.message).toMatch(
 			/An error occurred in the applyToTrack function/
 		)
 	})
 
-	test('applyToRoute wraps errors thrown by the supplied function', () => {
+	test('applyToRoute returns an error wrapping one thrown by the supplied function', () => {
 		const [parsedGPX, error] = parseGPX(testGPXFile)
 		if (error) throw error
 
@@ -58,7 +55,10 @@ describe('applyToTrack / applyToRoute', () => {
 			throw new Error('boom')
 		}
 
-		expect(() => parsedGPX.applyToRoute(0, throwingFunction)).toThrow(
+		const [result, applyError] = parsedGPX.applyToRoute(0, throwingFunction)
+
+		expect(result).toBeNull()
+		expect(applyError?.message).toMatch(
 			/An error occurred in the applyToRoute function/
 		)
 	})

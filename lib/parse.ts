@@ -1,3 +1,4 @@
+import { GPX_MAPPING } from './gpx_mapping'
 import {
 	calculateDistance,
 	calculateDuration,
@@ -6,15 +7,9 @@ import {
 } from './math_helpers'
 import { DEFAULT_OPTIONS } from './options'
 import { ParsedGPX } from './parsed_gpx'
-import type {
-	Extensions,
-	Options,
-	ParsedGPXInputs,
-	Point,
-	Route,
-	Track,
-	Waypoint,
-} from './types'
+import { removeEmptyFields } from './remove_empty_fields'
+import type { Options, ParsedGPXInputs, Route, Track } from './types'
+import { readObject } from './xml_object_mapping'
 
 /**
  * Converts the given GPX XML to a JavaScript Object with the ability to convert to GeoJSON.
@@ -81,384 +76,43 @@ export const parseGPXWithCustomParser = (
 		routes: [],
 	}
 
-	const metadata = output.xml.querySelector('metadata')
-	if (metadata !== null) {
-		// Store the top level elements of the metadata
-		output.metadata.name = getElementValue(metadata, 'name')
-		output.metadata.description = getElementValue(metadata, 'desc')
-		output.metadata.time = getElementValue(metadata, 'time')
-
-		// Parse and store the tree of data associated with the author
-		const authorElement = metadata.querySelector('author')
-		if (authorElement !== null) {
-			const emailElement = authorElement.querySelector('email')
-			const linkElement = authorElement.querySelector('link')
-
-			output.metadata.author = {
-				name: getElementValue(authorElement, 'name'),
-				email:
-					emailElement !== null
-						? {
-								id: emailElement.getAttribute('id') ?? '',
-								domain:
-									emailElement.getAttribute('domain') ?? '',
-							}
-						: null,
-				link:
-					linkElement !== null
-						? {
-								href: linkElement.getAttribute('href') ?? '',
-								text: getElementValue(linkElement, 'text'),
-								type: getElementValue(linkElement, 'type'),
-							}
-						: null,
-			}
-		}
-
-		// Parse and store the tree of data associated with the copyright
-		const copyrightElement = metadata.querySelector('copyright')
-		if (copyrightElement !== null) {
-			output.metadata.copyright = {
-				author: copyrightElement.getAttribute('author') ?? '',
-				year: getElementValue(copyrightElement, 'year'),
-				license: getElementValue(copyrightElement, 'license'),
-			}
-		}
-
-		// Parse and store the link element and its associated data
-		const linkElement = querySelectDirectDescendant(metadata, 'link')
-		if (linkElement !== null) {
-			output.metadata.link = {
-				href: linkElement.getAttribute('href') ?? '',
-				text: getElementValue(linkElement, 'text'),
-				type: getElementValue(linkElement, 'type'),
-			}
-		}
-
-		// Store the keywords, a comma-separated list of keywords
-		output.metadata.keywords = getElementValue(metadata, 'keywords')
-
-		// Parse and store the bounding coordinates of the file
-		const boundsElement = metadata.querySelector('bounds')
-		if (boundsElement !== null) {
-			const minLatitude = parseFloat(
-				boundsElement.getAttribute('minlat') ?? ''
-			)
-			const minLongitude = parseFloat(
-				boundsElement.getAttribute('minlon') ?? ''
-			)
-			const maxLatitude = parseFloat(
-				boundsElement.getAttribute('maxlat') ?? ''
-			)
-			const maxLongitude = parseFloat(
-				boundsElement.getAttribute('maxlon') ?? ''
-			)
-
-			output.metadata.bounds = {
-				minLatitude: Number.isNaN(minLatitude) ? null : minLatitude,
-				minLongitude: Number.isNaN(minLongitude) ? null : minLongitude,
-				maxLatitude: Number.isNaN(maxLatitude) ? null : maxLatitude,
-				maxLongitude: Number.isNaN(maxLongitude) ? null : maxLongitude,
-			}
-		}
+	// Read every field described by GPX_MAPPING, the same declarative schema
+	// used by `stringify.ts` to go the other direction. This keeps parsing
+	// and stringifying from drifting apart, since both read from one
+	// definition of what a GPX file looks like.
+	//
+	// Malformed XML can produce a Document with no root element at all, in
+	// which case there's nothing to read and the defaults above stand.
+	if (parsedSource.documentElement !== null) {
+		readObject(GPX_MAPPING, parsedSource.documentElement, output)
 	}
 
-	// Parse and store all waypoints
-	const waypoints = Array.from(output.xml.querySelectorAll('wpt'))
-	for (const waypoint of waypoints) {
-		const point: Waypoint = {
-			name: getElementValue(waypoint, 'name'),
-			symbol: getElementValue(waypoint, 'sym'),
-			latitude: parseFloat(waypoint.getAttribute('lat') ?? ''),
-			longitude: parseFloat(waypoint.getAttribute('lon') ?? ''),
-			elevation: null,
-			comment: getElementValue(waypoint, 'cmt'),
-			description: getElementValue(waypoint, 'desc'),
-			time: null,
-		}
-
-		const rawElevation = parseFloat(getElementValue(waypoint, 'ele') ?? '')
-		point.elevation = Number.isNaN(rawElevation) ? null : rawElevation
-
-		const rawTime = getElementValue(waypoint, 'time')
-		point.time = rawTime == null ? null : new Date(rawTime)
-
-		output.waypoints.push(point)
-	}
-
-	const routes = Array.from(output.xml.querySelectorAll('rte'))
-	for (const routeElement of routes) {
-		const route: Route = {
-			name: getElementValue(routeElement, 'name'),
-			comment: getElementValue(routeElement, 'cmt'),
-			description: getElementValue(routeElement, 'desc'),
-			src: getElementValue(routeElement, 'src'),
-			number: getElementValue(routeElement, 'number'),
-			type: null,
-			link: null,
-			points: [],
-			distance: {
-				cumulative: [],
-				total: 0,
-			},
-			duration: {
-				cumulative: [],
-				movingDuration: 0,
-				totalDuration: 0,
-				endTime: null,
-				startTime: null,
-			},
-			elevation: {
-				maximum: null,
-				minimum: null,
-				average: null,
-				positive: null,
-				negative: null,
-			},
-			slopes: [],
-		}
-
-		const type = querySelectDirectDescendant(routeElement, 'type')
-		route.type = type?.innerHTML ?? type?.textContent ?? null
-
-		// Parse and store the link and its associated data
-		const linkElement = routeElement.querySelector('link')
-		if (linkElement !== null) {
-			route.link = {
-				href: linkElement.getAttribute('href') ?? '',
-				text: getElementValue(linkElement, 'text'),
-				type: getElementValue(linkElement, 'type'),
-			}
-		}
-
-		// Parse and store all points in the route
-		const routePoints = Array.from(routeElement.querySelectorAll('rtept'))
-		for (const routePoint of routePoints) {
-			const point: Point = {
-				latitude: parseFloat(routePoint.getAttribute('lat') ?? ''),
-				longitude: parseFloat(routePoint.getAttribute('lon') ?? ''),
-				elevation: null,
-				time: null,
-				extensions: null,
-			}
-
-			const rawElevation = parseFloat(
-				getElementValue(routePoint, 'ele') ?? ''
-			)
-			point.elevation = Number.isNaN(rawElevation) ? null : rawElevation
-
-			const rawTime = getElementValue(routePoint, 'time')
-			point.time = rawTime == null ? null : new Date(rawTime)
-
-			route.points.push(point)
-		}
-
-		route.distance = calculateDistance(route.points)
-		route.duration = calculateDuration(
-			route.points,
-			route.distance,
+	// Distance, duration, elevation, and slopes aren't part of the GPX
+	// schema itself, they're derived from a track/route's points, so they're
+	// computed here rather than declared in the mapping.
+	for (const trackOrRoute of [...output.tracks, ...output.routes] as (
+		| Track
+		| Route
+	)[]) {
+		trackOrRoute.distance = calculateDistance(trackOrRoute.points)
+		trackOrRoute.duration = calculateDuration(
+			trackOrRoute.points,
+			trackOrRoute.distance,
 			options
 		)
-		route.elevation = calculateElevation(route.points)
-		route.slopes = calculateSlopes(route.points, route.distance.cumulative)
-
-		output.routes.push(route)
-	}
-
-	const tracks = Array.from(output.xml.querySelectorAll('trk'))
-	for (const trackElement of tracks) {
-		const track: Track = {
-			name: getElementValue(trackElement, 'name'),
-			comment: getElementValue(trackElement, 'cmt'),
-			description: getElementValue(trackElement, 'desc'),
-			src: getElementValue(trackElement, 'src'),
-			number: getElementValue(trackElement, 'number'),
-			type: null,
-			link: null,
-			points: [],
-			distance: {
-				cumulative: [],
-				total: 0,
-			},
-			duration: {
-				cumulative: [],
-				movingDuration: 0,
-				totalDuration: 0,
-				startTime: null,
-				endTime: null,
-			},
-			elevation: {
-				maximum: null,
-				minimum: null,
-				average: null,
-				positive: null,
-				negative: null,
-			},
-			slopes: [],
-		}
-
-		const type = querySelectDirectDescendant(trackElement, 'type')
-		track.type = type?.innerHTML ?? type?.textContent ?? null
-
-		// Parse and store the link and its associated data
-		const linkElement = trackElement.querySelector('link')
-		if (linkElement !== null) {
-			track.link = {
-				href: linkElement.getAttribute('href') ?? '',
-				text: getElementValue(linkElement, 'text'),
-				type: getElementValue(linkElement, 'type'),
-			}
-		}
-
-		// Parse and store all track points
-		const trackPoints = Array.from(trackElement.querySelectorAll('trkpt'))
-		for (const trackPoint of trackPoints) {
-			const point: Point = {
-				latitude: parseFloat(trackPoint.getAttribute('lat') ?? ''),
-				longitude: parseFloat(trackPoint.getAttribute('lon') ?? ''),
-				elevation: null,
-				time: null,
-				extensions: null,
-			}
-
-			// Parse any extensions and store them in an object
-			const extensionsElement = trackPoint.querySelector('extensions')
-			if (extensionsElement !== null) {
-				let extensions: Extensions = {}
-				extensions = parseExtensions(
-					extensions,
-					extensionsElement.childNodes
-				)
-				// Store all available extensions as numbers
-				point.extensions = extensions
-			}
-
-			const rawElevation = parseFloat(
-				getElementValue(trackPoint, 'ele') ?? ''
-			)
-			point.elevation = Number.isNaN(rawElevation) ? null : rawElevation
-
-			const rawTime = getElementValue(trackPoint, 'time')
-			point.time = rawTime == null ? null : new Date(rawTime)
-
-			track.points.push(point)
-		}
-
-		track.distance = calculateDistance(track.points)
-		track.duration = calculateDuration(
-			track.points,
-			track.distance,
-			options
+		trackOrRoute.elevation = calculateElevation(trackOrRoute.points)
+		trackOrRoute.slopes = calculateSlopes(
+			trackOrRoute.points,
+			trackOrRoute.distance.cumulative
 		)
-		track.elevation = calculateElevation(track.points)
-		track.slopes = calculateSlopes(track.points, track.distance.cumulative)
-
-		output.tracks.push(track)
 	}
 
 	if (options.removeEmptyFields) {
-		deleteNullFields(output.metadata)
-		deleteNullFields(output.waypoints)
-		deleteNullFields(output.tracks)
-		deleteNullFields(output.routes)
+		output.metadata = removeEmptyFields(output.metadata)
+		output.waypoints = removeEmptyFields(output.waypoints)
+		output.tracks = removeEmptyFields(output.tracks)
+		output.routes = removeEmptyFields(output.routes)
 	}
 
 	return [new ParsedGPX(output, options), null]
-}
-
-const parseExtensions = (
-	extensions: Extensions,
-	extensionChildrenCollection: NodeListOf<ChildNode>
-) => {
-	Array.from(extensionChildrenCollection)
-		.filter((child: ChildNode) => child.nodeType === 1)
-		.forEach((child: ChildNode) => {
-			const tagName = child.nodeName
-			if (
-				child.childNodes?.length === 1 &&
-				child.childNodes[0].nodeType === 3 &&
-				child.childNodes[0].textContent
-			) {
-				const textContent = child.childNodes[0].textContent.trim()
-				const value = Number.isNaN(+textContent)
-					? textContent
-					: parseFloat(textContent)
-				extensions[tagName] = value
-			} else {
-				extensions[tagName] = {}
-				extensions[tagName] = parseExtensions(
-					extensions[tagName] as Extensions,
-					child.childNodes
-				)
-			}
-		})
-
-	return extensions
-}
-
-/**
- * Extracts a value from a node within a parent element.
- * This is useful when there are nested tags within the DOM.
- *
- * @param parent An element to extract a value from
- * @param tag The tag of the child element that contains the desired data (e.g. "time" or "name")
- * @returns A string containing the desired value
- */
-const getElementValue = (parent: Element, tag: string): string | null => {
-	const element = parent.querySelector(tag)
-
-	// Extract and return the value within the parent element
-	if (element !== null) {
-		return element.firstChild?.textContent ?? element.innerHTML ?? null
-	} else return null
-}
-
-/**
- * Find a direct descendent of the given element. If it is nested more than one layer down,
- * it will not be found.
- *
- * @param parent A parent element to search within
- * @param tag The tag of the child element to search for
- * @returns The desired inner element
- */
-const querySelectDirectDescendant = (
-	parent: Element,
-	tag: string
-): Element | null => {
-	try {
-		// Find the first direct matching direct descendent
-		const result = parent.querySelector(`:scope > ${tag}`)
-		return result
-	} catch (_e) {
-		// Handle non-browser or older environments that don't support :scope
-		if (parent.childNodes) {
-			return (
-				(Array.from(parent.childNodes) as Element[]).find(
-					(element) => element.tagName === tag
-				) ?? null
-			)
-		} else return null
-	}
-}
-
-export const deleteNullFields = <T>(object: T) => {
-	// Return non-object values as-is
-	if (typeof object !== 'object' || object === null || object === undefined) {
-		return
-	}
-
-	// Remove null fields from arrays
-	if (Array.isArray(object)) {
-		object.forEach(deleteNullFields)
-		return
-	}
-
-	// Recursively remove null fields from object
-	for (const [key, value] of Object.entries(object)) {
-		if (value == null || value === undefined) {
-			delete (object as { [key: string]: any })[key]
-		} else {
-			deleteNullFields(value)
-		}
-	}
 }
