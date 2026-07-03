@@ -1,6 +1,5 @@
 import type { MathHelperFunction } from './math_helpers'
-
-import { deleteNullFields } from './parse'
+import { removeEmptyFields } from './remove_empty_fields'
 import type {
 	Feature,
 	GeoJSON,
@@ -116,9 +115,9 @@ export class ParsedGPX {
 			GeoJSON.features.push(feature)
 		}
 
-		if (this.options.removeEmptyFields) deleteNullFields(GeoJSON)
-
-		return GeoJSON
+		return this.options.removeEmptyFields
+			? removeEmptyFields(GeoJSON)
+			: GeoJSON
 	}
 
 	applyToTrack(

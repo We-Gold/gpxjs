@@ -7,6 +7,7 @@ import {
 } from './math_helpers'
 import { DEFAULT_OPTIONS } from './options'
 import { ParsedGPX } from './parsed_gpx'
+import { removeEmptyFields } from './remove_empty_fields'
 import type { Options, ParsedGPXInputs, Route, Track } from './types'
 import { readObject } from './xml_object_mapping'
 
@@ -107,33 +108,11 @@ export const parseGPXWithCustomParser = (
 	}
 
 	if (options.removeEmptyFields) {
-		deleteNullFields(output.metadata)
-		deleteNullFields(output.waypoints)
-		deleteNullFields(output.tracks)
-		deleteNullFields(output.routes)
+		output.metadata = removeEmptyFields(output.metadata)
+		output.waypoints = removeEmptyFields(output.waypoints)
+		output.tracks = removeEmptyFields(output.tracks)
+		output.routes = removeEmptyFields(output.routes)
 	}
 
 	return [new ParsedGPX(output, options), null]
-}
-
-export const deleteNullFields = <T>(object: T) => {
-	// Return non-object values as-is
-	if (typeof object !== 'object' || object === null || object === undefined) {
-		return
-	}
-
-	// Remove null fields from arrays
-	if (Array.isArray(object)) {
-		object.forEach(deleteNullFields)
-		return
-	}
-
-	// Recursively remove null fields from object
-	for (const [key, value] of Object.entries(object)) {
-		if (value == null || value === undefined) {
-			delete (object as { [key: string]: any })[key]
-		} else {
-			deleteNullFields(value)
-		}
-	}
 }
