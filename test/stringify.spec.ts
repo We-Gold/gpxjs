@@ -14,7 +14,8 @@ describe('stringfy', () => {
 		const [gpx, error] = parseGPX(testGPXFile)
 		if (error) throw error
 
-		const xml = stringifyGPX(gpx)
+		const [xml, stringifyError] = stringifyGPX(gpx)
+		if (stringifyError) throw stringifyError
 		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
 	})
 
@@ -22,7 +23,8 @@ describe('stringfy', () => {
 		const [gpx, error] = parseGPX(testGPXFile)
 		if (error) throw error
 
-		const xml = stringifyGPX(gpx, new QsaXMLSerializer())
+		const [xml, stringifyError] = stringifyGPX(gpx, new QsaXMLSerializer())
+		if (stringifyError) throw stringifyError
 		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
 	})
 
@@ -36,8 +38,41 @@ describe('stringfy', () => {
 		)
 		if (error) throw error
 
-		const xml = stringifyGPX(gpx, new QsaXMLSerializer())
+		const [xml, stringifyError] = stringifyGPX(gpx, new QsaXMLSerializer())
+		if (stringifyError) throw stringifyError
 		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
+	})
+
+	test('returns an error instead of throwing when serialization fails', () => {
+		const [gpx, error] = parseGPX(testGPXFile)
+		if (error) throw error
+
+		const throwingSerializer = {
+			serializeToString(): string {
+				throw new Error('boom')
+			},
+		}
+
+		const [xml, stringifyError] = stringifyGPX(gpx, throwingSerializer)
+		expect(xml).toBeNull()
+		expect(stringifyError?.message).toBe('boom')
+	})
+
+	test('wraps a non-Error thrown value in an Error', () => {
+		const [gpx, error] = parseGPX(testGPXFile)
+		if (error) throw error
+
+		const throwingSerializer = {
+			serializeToString(): string {
+				// biome-ignore lint/style/useThrowOnlyError: exercising the non-Error fallback path
+				throw 'boom'
+			},
+		}
+
+		const [xml, stringifyError] = stringifyGPX(gpx, throwingSerializer)
+		expect(xml).toBeNull()
+		expect(stringifyError).toBeInstanceOf(Error)
+		expect(stringifyError?.message).toBe('boom')
 	})
 })
 
