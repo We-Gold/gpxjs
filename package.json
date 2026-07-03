@@ -32,13 +32,13 @@
 		}
 	},
 	"scripts": {
-		"dev": "vite",
 		"build": "tsc && vite build",
 		"watch": "vite build --watch",
 		"pack-test": "npm pack --dry-run",
-		"preview": "vite preview",
 		"test": "vitest",
 		"coverage": "vitest run --coverage",
+		"bench": "vitest bench",
+		"bench:update-readme": "vitest bench --run --outputJson bench/results.json && node scripts/generate-benchmark-readme.mjs",
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
 		"format": "biome format --write ."

@@ -45,6 +45,11 @@ export default defineConfig({
 						headless: true,
 						instances: [{ browser: 'chromium' }],
 					},
+					// Only the browser-DOMParser benchmark runs here; the
+					// xmldom-qsa one below needs the "node" project instead.
+					benchmark: {
+						include: ['bench/parse-browser.bench.ts'],
+					},
 				},
 			},
 			{
@@ -53,6 +58,9 @@ export default defineConfig({
 					name: 'node',
 					environment: 'node',
 					include: ['test/node/**/*.spec.ts'],
+					benchmark: {
+						include: ['bench/parse-node.bench.ts'],
+					},
 				},
 			},
 		],
