@@ -121,6 +121,18 @@ export const expectedMetadata: Partial<MetaData> = {
 			type: 'Web',
 		},
 	},
+	copyright: {
+		author: 'Test Copyright Owner',
+		year: '2024',
+		license: 'MIT',
+	},
+	keywords: 'Test, gpx, file',
+	bounds: {
+		minLatitude: 49.12965660728301,
+		minLongitude: -1.5521714646550901,
+		maxLatitude: 45.85097922514941,
+		maxLongitude: 4.336738935765406,
+	},
 }
 
 export const expectedWaypoint: Partial<Waypoint> = {

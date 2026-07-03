@@ -53,11 +53,17 @@ const EXPECTED_XML = `<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.
         <type>Web</type>
       </link>
     </author>
+    <copyright author="Test Copyright Owner">
+      <year>2024</year>
+      <license>MIT</license>
+    </copyright>
     <link href="https://test2.com">
       <text>General Website</text>
       <type>Web</type>
     </link>
     <time>2020-01-12T21:32:52</time>
+    <keywords>Test, gpx, file</keywords>
+    <bounds minlat="49.12965660728301" minlon="-1.5521714646550901" maxlat="45.85097922514941" maxlon="4.336738935765406"/>
   </metadata>
   <wpt lat="47.253146555709" lon="-1.5153741828293">
     <name>Porte de Carquefou</name>

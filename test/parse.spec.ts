@@ -11,10 +11,7 @@ import {
 	testGPXFile,
 } from './test-gpx-file'
 
-// TODO test GeoJSON, benchmarks
-
 // TODO: Noted inconsistencies while testing
-// Missing some metadata information
 // Parse some times as dates and some as strings
 // Some items match abbreviations, some don't
 

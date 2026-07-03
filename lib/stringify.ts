@@ -141,8 +141,20 @@ const GPX_MAPPING: ObjectMapping = {
 			},
 			link: LINK_MAPPING,
 		},
+		copyright: {
+			'@author': '=',
+			year: '=',
+			license: '=',
+		},
 		link: LINK_MAPPING,
 		time: '=',
+		keywords: '=',
+		bounds: {
+			'@minlat': 'minLatitude',
+			'@minlon': 'minLongitude',
+			'@maxlat': 'maxLatitude',
+			'@maxlon': 'maxLongitude',
+		},
 	},
 	wpt: {
 		$expr: 'waypoints',
