@@ -25,7 +25,7 @@ function parseXml(xml: string): Element {
 
 function writeXml(
 	mapping: Parameters<typeof writeObject>[2],
-	srcObj: any
+	srcObj: Record<string, unknown>
 ): Element {
 	const doc = document.implementation.createDocument(NS, 'root')
 	writeObject(doc, NS, mapping, srcObj, doc.documentElement)
@@ -39,7 +39,7 @@ describe('scalar fields', () => {
 		const written = writeXml(mapping, { name: 'Alice' })
 		expect(written.querySelector('name')?.textContent).toBe('Alice')
 
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(mapping, parseXml('<root><name>Alice</name></root>'), read)
 		expect(read).toStrictEqual({ name: 'Alice' })
 	})
@@ -50,7 +50,7 @@ describe('scalar fields', () => {
 		const written = writeXml(mapping, { id: '42' })
 		expect(written.getAttribute('id')).toBe('42')
 
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(mapping, parseXml('<root id="42"/>'), read)
 		expect(read).toStrictEqual({ id: '42' })
 	})
@@ -61,7 +61,7 @@ describe('scalar fields', () => {
 		const written = writeXml(mapping, { description: 'hello' })
 		expect(written.querySelector('desc')?.textContent).toBe('hello')
 
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(mapping, parseXml('<root><desc>hello</desc></root>'), read)
 		expect(read).toStrictEqual({ description: 'hello' })
 	})
@@ -77,7 +77,7 @@ describe('scalar fields', () => {
 	test('a missing element/attribute reads as null by default', () => {
 		const mapping = { name: scalar(), '@id': scalar() }
 
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(mapping, parseXml('<root/>'), read)
 		expect(read).toStrictEqual({ name: null, id: null })
 	})
@@ -86,7 +86,7 @@ describe('scalar fields', () => {
 		test('attrString defaults a missing attribute to an empty string', () => {
 			const mapping = { '@id': scalar({ type: 'attrString' }) }
 
-			const read: any = {}
+			const read: Record<string, unknown> = {}
 			readObject(mapping, parseXml('<root/>'), read)
 			expect(read).toStrictEqual({ id: '' })
 		})
@@ -94,7 +94,7 @@ describe('scalar fields', () => {
 		test('float keeps NaN for an unparseable or missing value', () => {
 			const mapping = { '@lat': scalar({ type: 'float' }) }
 
-			const read: any = {}
+			const read: Record<string, unknown> = {}
 			readObject(mapping, parseXml('<root/>'), read)
 			expect(read.lat).toBeNaN()
 		})
@@ -102,7 +102,7 @@ describe('scalar fields', () => {
 		test('floatOrNull converts an unparseable or missing value to null', () => {
 			const mapping = { ele: scalar({ type: 'floatOrNull' }) }
 
-			const read: any = {}
+			const read: Record<string, unknown> = {}
 			readObject(
 				mapping,
 				parseXml('<root><ele>not-a-number</ele></root>'),
@@ -114,7 +114,7 @@ describe('scalar fields', () => {
 		test('date parses a present value and leaves a missing one as null', () => {
 			const mapping = { time: scalar({ type: 'date' }) }
 
-			const present: any = {}
+			const present: Record<string, unknown> = {}
 			readObject(
 				mapping,
 				parseXml('<root><time>2020-01-01T00:00:00.000Z</time></root>'),
@@ -124,7 +124,7 @@ describe('scalar fields', () => {
 				new Date('2020-01-01T00:00:00.000Z')
 			)
 
-			const missing: any = {}
+			const missing: Record<string, unknown> = {}
 			readObject(mapping, parseXml('<root/>'), missing)
 			expect(missing).toStrictEqual({ time: null })
 		})
@@ -149,7 +149,7 @@ describe('object fields', () => {
 		const written = writeXml(mapping, { author: { name: 'Bob' } })
 		expect(written.querySelector('author > name')?.textContent).toBe('Bob')
 
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(
 			mapping,
 			parseXml('<root><author><name>Bob</name></author></root>'),
@@ -159,7 +159,7 @@ describe('object fields', () => {
 	})
 
 	test('a missing element defaults to null instead of an empty object', () => {
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(mapping, parseXml('<root/>'), read)
 		expect(read).toStrictEqual({ author: null })
 	})
@@ -184,7 +184,7 @@ describe('array fields', () => {
 	})
 
 	test('reads every matching element into an array, in document order', () => {
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(
 			mapping,
 			parseXml(
@@ -196,7 +196,7 @@ describe('array fields', () => {
 	})
 
 	test('defaults to an empty array, not null or undefined, when no elements match', () => {
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(mapping, parseXml('<root/>'), read)
 		expect(read).toStrictEqual({ items: [] })
 	})
@@ -220,7 +220,7 @@ describe('unwrap (self) fields', () => {
 	}
 
 	test('merges the wrapper element fields into the same object', () => {
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(
 			mapping,
 			parseXml('<root><seg><pt v="1"/><pt v="2"/></seg></root>'),
@@ -233,7 +233,7 @@ describe('unwrap (self) fields', () => {
 		// There's no <seg> element at all here, so the wrapper is never
 		// visited, yet `points` must still come out as [] rather than
 		// missing entirely.
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(mapping, parseXml('<root/>'), read)
 		expect(read).toStrictEqual({ points: [] })
 	})
@@ -270,7 +270,7 @@ describe('custom fields', () => {
 	})
 
 	test('delegates reading to the read function', () => {
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(
 			mapping,
 			parseXml('<root><payload a="1" b="2"/></root>'),
@@ -280,7 +280,7 @@ describe('custom fields', () => {
 	})
 
 	test('a missing element defaults to null and skips the read function', () => {
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(mapping, parseXml('<root/>'), read)
 		expect(read).toStrictEqual({ payload: null })
 	})
@@ -288,7 +288,7 @@ describe('custom fields', () => {
 	test('does not overwrite a value already present on the destination object', () => {
 		// initializeDefaults only fills in a default when the field is
 		// undefined; a value set before readObject runs should survive.
-		const read: any = { payload: { existing: true } }
+		const read: Record<string, unknown> = { payload: { existing: true } }
 		readObject(mapping, parseXml('<root/>'), read)
 		expect(read).toStrictEqual({ payload: { existing: true } })
 	})
@@ -298,7 +298,7 @@ describe('reading an empty element', () => {
 	test('falls back to innerHTML (empty string) when there is no text node', () => {
 		const mapping = { name: scalar() }
 
-		const read: any = {}
+		const read: Record<string, unknown> = {}
 		readObject(mapping, parseXml('<root><name></name></root>'), read)
 		expect(read).toStrictEqual({ name: '' })
 	})

@@ -105,7 +105,7 @@ export const GPX_MAPPING: ObjectMapping = {
 			year: scalar(),
 			license: scalar(),
 		}),
-		link: object(LINK_FIELDS),
+		link: array(LINK_FIELDS),
 		time: scalar(),
 		keywords: scalar(),
 		bounds: object({
@@ -114,6 +114,7 @@ export const GPX_MAPPING: ObjectMapping = {
 			'@maxlat': scalar({ expr: 'maxLatitude', type: 'floatOrNull' }),
 			'@maxlon': scalar({ expr: 'maxLongitude', type: 'floatOrNull' }),
 		}),
+		extensions: custom(writeExtensions, readExtensions),
 	}),
 	wpt: array(
 		{
@@ -125,6 +126,22 @@ export const GPX_MAPPING: ObjectMapping = {
 			time: scalar({ type: 'date' }),
 			cmt: scalar({ expr: 'comment' }),
 			sym: scalar({ expr: 'symbol' }),
+			magvar: scalar({ expr: 'magneticVariation', type: 'floatOrNull' }),
+			geoidheight: scalar({ expr: 'geoidHeight', type: 'floatOrNull' }),
+			src: scalar(),
+			link: array(LINK_FIELDS),
+			type: scalar(),
+			fix: scalar(),
+			sat: scalar({ expr: 'satellites', type: 'intOrNull' }),
+			hdop: scalar({ type: 'floatOrNull' }),
+			vdop: scalar({ type: 'floatOrNull' }),
+			pdop: scalar({ type: 'floatOrNull' }),
+			ageofdgpsdata: scalar({
+				expr: 'ageOfDgpsData',
+				type: 'floatOrNull',
+			}),
+			dgpsid: scalar({ expr: 'dgpsId', type: 'intOrNull' }),
+			extensions: custom(writeExtensions, readExtensions),
 		},
 		{ expr: 'waypoints' }
 	),
@@ -135,10 +152,14 @@ export const GPX_MAPPING: ObjectMapping = {
 			desc: scalar({ expr: 'description' }),
 			src: scalar(),
 			number: scalar(),
-			link: object(LINK_FIELDS),
+			link: array(LINK_FIELDS),
 			type: scalar(),
+			extensions: custom(writeExtensions, readExtensions),
 			trkseg: unwrap({
 				trkpt: array(POINT_FIELDS, { expr: 'points' }),
+				extensions: custom(writeExtensions, readExtensions, {
+					expr: 'segmentExtensions',
+				}),
 			}),
 		},
 		{ expr: 'tracks' }
@@ -150,10 +171,12 @@ export const GPX_MAPPING: ObjectMapping = {
 			desc: scalar({ expr: 'description' }),
 			src: scalar(),
 			number: scalar(),
-			link: object(LINK_FIELDS),
+			link: array(LINK_FIELDS),
 			type: scalar(),
 			rtept: array(POINT_FIELDS, { expr: 'points' }),
+			extensions: custom(writeExtensions, readExtensions),
 		},
 		{ expr: 'routes' }
 	),
+	extensions: custom(writeExtensions, readExtensions),
 }

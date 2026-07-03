@@ -1,13 +1,17 @@
 export type MetaData = {
 	name: string | null
 	description: string | null
-	link: Link | null
+	link: Link[]
 	author: Author | null
 	time: string | null
 	copyright: Copyright | null
 	keywords: string | null
 	bounds: Bounds | null
+	extensions: Extensions | null
 }
+
+/** GPS fix quality, as reported by a device for a waypoint/track/route point. */
+export type WaypointFix = 'none' | '2d' | '3d' | 'dgps' | 'pps'
 
 export type Waypoint = {
 	name: string | null
@@ -18,6 +22,19 @@ export type Waypoint = {
 	longitude: number
 	elevation: number | null
 	time: Date | null
+	magneticVariation: number | null
+	geoidHeight: number | null
+	src: string | null
+	link: Link[]
+	type: string | null
+	fix: WaypointFix | null
+	satellites: number | null
+	hdop: number | null
+	vdop: number | null
+	pdop: number | null
+	ageOfDgpsData: number | null
+	dgpsId: number | null
+	extensions: Extensions | null
 }
 
 export type Track = {
@@ -26,13 +43,21 @@ export type Track = {
 	description: string | null
 	src: string | null
 	number: string | null
-	link: Link | null
+	link: Link[]
 	type: string | null
 	points: Point[]
 	distance: Distance
 	duration: Duration
 	elevation: Elevation
 	slopes: number[]
+	extensions: Extensions | null
+	/**
+	 * Extensions from the track's `<trkseg>` element, kept separate from the
+	 * track's own `<trk>`-level `extensions` above since the schema allows
+	 * both. Like `points`, this only reflects the first `<trkseg>` if a track
+	 * has more than one, matching the existing points-flattening behavior.
+	 */
+	segmentExtensions: Extensions | null
 }
 
 export type Route = {
@@ -41,13 +66,14 @@ export type Route = {
 	description: string | null
 	src: string | null
 	number: string | null
-	link: Link | null
+	link: Link[]
 	type: string | null
 	points: Point[]
 	distance: Distance
 	elevation: Elevation
 	duration: Duration
 	slopes: number[]
+	extensions: Extensions | null
 }
 
 export type Point = {
@@ -115,6 +141,8 @@ export type ParsedGPXInputs = {
 	waypoints: Waypoint[]
 	tracks: Track[]
 	routes: Route[]
+	/** Extensions on the root `<gpx>` element itself, as opposed to any of its children. */
+	extensions: Extensions | null
 }
 
 export type Feature = {
@@ -124,7 +152,7 @@ export type Feature = {
 		coordinates: (number | null)[][]
 	}
 	properties: {
-		[key: string]: string | number | Link | null
+		[key: string]: string | number | Link | Link[] | null
 	}
 }
 
@@ -135,7 +163,7 @@ export type WaypointFeature = {
 		coordinates: (number | null)[]
 	}
 	properties: {
-		[key: string]: string | number | Link | null
+		[key: string]: string | number | Link | Link[] | null
 	}
 }
 

@@ -16,6 +16,7 @@ test('removeEmptyFields: false keeps null fields in the parsed output', () => {
 		name: 'No Time Or Elevation',
 		latitude: 47.253146555709,
 		longitude: -1.5153741828293,
+		link: [],
 	})
 
 	const [withNulls, nullsError] = parseGPX(noTimeNoElevationGPXFile, {
@@ -34,6 +35,19 @@ test('removeEmptyFields: false keeps null fields in the parsed output', () => {
 		comment: null,
 		description: null,
 		time: null,
+		magneticVariation: null,
+		geoidHeight: null,
+		src: null,
+		link: [],
+		type: null,
+		fix: null,
+		satellites: null,
+		hdop: null,
+		vdop: null,
+		pdop: null,
+		ageOfDgpsData: null,
+		dgpsId: null,
+		extensions: null,
 	})
 })
 

@@ -10,6 +10,13 @@
  *
  * This file has no GPX-specific knowledge. See `gpx_mapping.ts` for the GPX
  * schema itself, built out of the pieces defined here.
+ *
+ * `srcObj`/`dstObj` are genuinely untyped here: the same read/write code
+ * runs against metadata, waypoints, tracks, routes, and points, which are
+ * all differently-shaped objects, and fields are accessed dynamically by
+ * string key rather than through a fixed interface. `noExplicitAny` is
+ * disabled for this file in biome.json rather than laundering the same
+ * looseness through `Record<string, unknown>` casts at every access site.
  */
 
 /**
@@ -21,9 +28,15 @@
  * - 'attrString': like the default, but a missing attribute becomes '' instead of null
  * - 'float': parse as a float, leaving NaN if unparseable (used for required coordinates)
  * - 'floatOrNull': parse as a float, using null instead of NaN if unparseable
+ * - 'intOrNull': parse as an integer, using null instead of NaN if unparseable
  * - 'date': convert to a Date, or null if missing
  */
-export type FieldType = 'attrString' | 'float' | 'floatOrNull' | 'date'
+export type FieldType =
+	| 'attrString'
+	| 'float'
+	| 'floatOrNull'
+	| 'intOrNull'
+	| 'date'
 
 /** A single attribute or text value. */
 export type ScalarMapping = {
@@ -327,6 +340,10 @@ function coerceValue(raw: string | null, type?: FieldType) {
 			return parseFloat(raw ?? '')
 		case 'floatOrNull': {
 			const value = parseFloat(raw ?? '')
+			return Number.isNaN(value) ? null : value
+		}
+		case 'intOrNull': {
+			const value = parseInt(raw ?? '', 10)
 			return Number.isNaN(value) ? null : value
 		}
 		case 'date':

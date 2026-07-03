@@ -1,6 +1,7 @@
 import type { MathHelperFunction } from './math_helpers'
 import { removeEmptyFields } from './remove_empty_fields'
 import type {
+	Extensions,
 	Feature,
 	GeoJSON,
 	MetaData,
@@ -22,10 +23,19 @@ export class ParsedGPX {
 	public waypoints: Waypoint[]
 	public tracks: Track[]
 	public routes: Route[]
+	/** Extensions on the root `<gpx>` element itself. */
+	public extensions: Extensions | null
 	private options: Options
 
 	constructor(
-		{ xml, metadata, waypoints, tracks, routes }: ParsedGPXInputs,
+		{
+			xml,
+			metadata,
+			waypoints,
+			tracks,
+			routes,
+			extensions,
+		}: ParsedGPXInputs,
 		options: Options
 	) {
 		this.xml = xml
@@ -33,6 +43,7 @@ export class ParsedGPX {
 		this.waypoints = waypoints
 		this.tracks = tracks
 		this.routes = routes
+		this.extensions = extensions
 		this.options = options
 	}
 
@@ -123,7 +134,7 @@ export class ParsedGPX {
 	applyToTrack(
 		trackIndex: number,
 		func: MathHelperFunction,
-		...args: any[]
+		...args: unknown[]
 	): [ReturnType<MathHelperFunction>, null] | [null, Error] {
 		// Ensure that the track index is valid
 		if (trackIndex < 0 || trackIndex >= this.tracks.length) {
@@ -146,7 +157,7 @@ export class ParsedGPX {
 	applyToRoute(
 		routeIndex: number,
 		func: MathHelperFunction,
-		...args: any[]
+		...args: unknown[]
 	): [ReturnType<MathHelperFunction>, null] | [null, Error] {
 		// Ensure that the route index is valid
 		if (routeIndex < 0 || routeIndex >= this.routes.length) {
