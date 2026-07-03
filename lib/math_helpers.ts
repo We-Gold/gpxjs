@@ -1,6 +1,5 @@
-import { Point, Distance, Elevation, Duration, Options } from "./types"
-
-import { DEFAULT_OPTIONS } from "./options"
+import { DEFAULT_OPTIONS } from './options'
+import type { Distance, Duration, Elevation, Options, Point } from './types'
 
 export type MathHelperFunction = (points: Point[], ...args: any[]) => any
 
@@ -125,7 +124,7 @@ export const calculateDuration: MathHelperFunction = (
 		allTimedPoints.length === 0
 			? 0
 			: allTimedPoints[allTimedPoints.length - 1].time.getTime() -
-			  allTimedPoints[0].time.getTime()
+				allTimedPoints[0].time.getTime()
 
 	return {
 		startTime: allTimedPoints.length ? allTimedPoints[0].time : null,

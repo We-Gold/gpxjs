@@ -1,5 +1,4 @@
-export const testGPXFile = 
-`<?xml version="1.0" encoding="UTF-8" ?>
+export const testGPXFile = `<?xml version="1.0" encoding="UTF-8" ?>
 <gpx version="1.1" creator="Test Creator">
     <metadata>
         <name>GPX Test</name>
@@ -84,116 +83,116 @@ export const testGPXFile =
 </gpx>`
 
 export const expectedMetadata = {
-    name: "GPX Test",
-    description: "Test Description",
-    time: "2020-01-12T21:32:52",
-    link: {
-        href: "https://test2.com",
-        text: "General Website",
-        type: "Web"
-    },
-    author: {
-        name: "Test Author",
-        email: {
-            id: "test",
-            domain: "test.com",
-        },
-        link: {
-            href: "https://test.com",
-            text: "Author Website",
-            type: "Web"
-        }
-    },
+	name: 'GPX Test',
+	description: 'Test Description',
+	time: '2020-01-12T21:32:52',
+	link: {
+		href: 'https://test2.com',
+		text: 'General Website',
+		type: 'Web',
+	},
+	author: {
+		name: 'Test Author',
+		email: {
+			id: 'test',
+			domain: 'test.com',
+		},
+		link: {
+			href: 'https://test.com',
+			text: 'Author Website',
+			type: 'Web',
+		},
+	},
 }
 
 export const expectedWaypoint = {
-    name: "Porte de Carquefou",
-    latitude: 47.253146555709,
-    longitude: -1.5153741828293,
-    elevation: 35,
-    comment: "Warning",
-    description: "Route",
-    time: new Date("2020-02-02T07:54:30.000Z")
+	name: 'Porte de Carquefou',
+	latitude: 47.253146555709,
+	longitude: -1.5153741828293,
+	elevation: 35,
+	comment: 'Warning',
+	description: 'Route',
+	time: new Date('2020-02-02T07:54:30.000Z'),
 }
 
 export const expectedTrack = {
-    name: "Track",
-    comment: "Bridge",
-    description: "Test track",
-    src: "GPX Test Device",
-    number: "1",
-    type: "MTB",
-    link: {
-        href: "https://test.com",
-        text: "Track Website",
-        type: "Web"
-    },
-    distance: {
-        cumulative: [0],
-        total: 0,
-    },
-    duration: {
-        cumulative: [0],
-        movingDuration: 0,
-        totalDuration: 0,
-    },
-    elevation: {
-        average: 12.36,
-        maximum: 12.36,
-        minimum: 12.36,
-    },
-    points: [
-        {
-            elevation: 12.36,
-            extensions: {
-                floatext: 1.75,
-                intext: 3,
-                strext: "testString",
-                subext: {
-                    subval: 33
-                },
-            },
-            latitude: 47.2278526991611,
-            longitude: -1.5521714646550901,
-            time: new Date("2020-02-02T07:54:30.000Z"),
-        }
-    ],
-    slopes: [],
+	name: 'Track',
+	comment: 'Bridge',
+	description: 'Test track',
+	src: 'GPX Test Device',
+	number: '1',
+	type: 'MTB',
+	link: {
+		href: 'https://test.com',
+		text: 'Track Website',
+		type: 'Web',
+	},
+	distance: {
+		cumulative: [0],
+		total: 0,
+	},
+	duration: {
+		cumulative: [0],
+		movingDuration: 0,
+		totalDuration: 0,
+	},
+	elevation: {
+		average: 12.36,
+		maximum: 12.36,
+		minimum: 12.36,
+	},
+	points: [
+		{
+			elevation: 12.36,
+			extensions: {
+				floatext: 1.75,
+				intext: 3,
+				strext: 'testString',
+				subext: {
+					subval: 33,
+				},
+			},
+			latitude: 47.2278526991611,
+			longitude: -1.5521714646550901,
+			time: new Date('2020-02-02T07:54:30.000Z'),
+		},
+	],
+	slopes: [],
 }
 
 export const expectedRoute = {
-    name: "Track",
-    comment: "Bridge",
-    description: "Test route",
-    src: "GPX Test Device",
-    number: "1",
-    type: "MTB",
-    link: {
-        href: "https://test.com",
-        text: "Route Website",
-        type: "Web"
-    },
-    distance: {
-        cumulative: [0],
-        total: 0,
-    },
-    duration: {
-        cumulative: [0],
-        movingDuration: 0,
-        totalDuration: 0,
-    },
-    elevation: {
-        average: 12.36,
-        maximum: 12.36,
-        minimum: 12.36,
-    },
-    points: [
-        {
-            latitude: 47.2278526991611,
-            longitude: -1.5521714646550901,
-            elevation: 12.36,
-            time: new Date("2020-02-02T07:54:30.000Z"),
-        },
-    ],
-    slopes: [],
+	name: 'Track',
+	comment: 'Bridge',
+	description: 'Test route',
+	src: 'GPX Test Device',
+	number: '1',
+	type: 'MTB',
+	link: {
+		href: 'https://test.com',
+		text: 'Route Website',
+		type: 'Web',
+	},
+	distance: {
+		cumulative: [0],
+		total: 0,
+	},
+	duration: {
+		cumulative: [0],
+		movingDuration: 0,
+		totalDuration: 0,
+	},
+	elevation: {
+		average: 12.36,
+		maximum: 12.36,
+		minimum: 12.36,
+	},
+	points: [
+		{
+			latitude: 47.2278526991611,
+			longitude: -1.5521714646550901,
+			elevation: 12.36,
+			time: new Date('2020-02-02T07:54:30.000Z'),
+		},
+	],
+	slopes: [],
 }

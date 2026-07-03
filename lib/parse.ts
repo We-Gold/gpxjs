@@ -3,18 +3,18 @@ import {
 	calculateDuration,
 	calculateElevation,
 	calculateSlopes,
-} from "./math_helpers"
-import { DEFAULT_OPTIONS } from "./options"
-import { ParsedGPX } from "./parsed_gpx"
-import {
+} from './math_helpers'
+import { DEFAULT_OPTIONS } from './options'
+import { ParsedGPX } from './parsed_gpx'
+import type {
+	Extensions,
+	Options,
 	ParsedGPXInputs,
 	Point,
 	Route,
 	Track,
 	Waypoint,
-	Extensions,
-	Options,
-} from "./types"
+} from './types'
 
 /**
  * Converts the given GPX XML to a JavaScript Object with the ability to convert to GeoJSON.
@@ -29,15 +29,15 @@ export const parseGPX = (
 ) => {
 	const parseMethod = (gpxSource: string): Document | null => {
 		// Verify that we are in a browser
-		if (typeof document === "undefined") return null
-		if (typeof window === "undefined") {
+		if (typeof document === 'undefined') return null
+		if (typeof window === 'undefined') {
 			console.error(
-				"window is undefined, try to use the parseGPXWithCustomParser method"
+				'window is undefined, try to use the parseGPXWithCustomParser method'
 			)
 			return null
 		}
 		const domParser = new window.DOMParser()
-		return domParser.parseFromString(gpxSource, "text/xml")
+		return domParser.parseFromString(gpxSource, 'text/xml')
 	}
 	const allOptions = { ...DEFAULT_OPTIONS, ...options }
 	return parseGPXWithCustomParser(gpxSource, parseMethod, allOptions)
@@ -62,14 +62,14 @@ export const parseGPXWithCustomParser = (
 
 	// Verify that the parsed data is present
 	if (parsedSource === null)
-		return [null, new Error("Provided parsing method failed.")]
+		return [null, new Error('Provided parsing method failed.')]
 
 	const output: ParsedGPXInputs = {
 		xml: parsedSource,
 		metadata: {
-			name: "",
-			description: "",
-			time: "",
+			name: '',
+			description: '',
+			time: '',
 			author: null,
 			link: null,
 		},
@@ -78,82 +78,82 @@ export const parseGPXWithCustomParser = (
 		routes: [],
 	}
 
-	const metadata = output.xml.querySelector("metadata")
+	const metadata = output.xml.querySelector('metadata')
 	if (metadata !== null) {
 		// Store the top level elements of the metadata
-		output.metadata.name = getElementValue(metadata, "name")
-		output.metadata.description = getElementValue(metadata, "desc")
-		output.metadata.time = getElementValue(metadata, "time")
+		output.metadata.name = getElementValue(metadata, 'name')
+		output.metadata.description = getElementValue(metadata, 'desc')
+		output.metadata.time = getElementValue(metadata, 'time')
 
 		// Parse and store the tree of data associated with the author
-		const authorElement = metadata.querySelector("author")
+		const authorElement = metadata.querySelector('author')
 		if (authorElement !== null) {
-			const emailElement = authorElement.querySelector("email")
-			const linkElement = authorElement.querySelector("link")
+			const emailElement = authorElement.querySelector('email')
+			const linkElement = authorElement.querySelector('link')
 
 			output.metadata.author = {
-				name: getElementValue(authorElement, "name"),
+				name: getElementValue(authorElement, 'name'),
 				email:
 					emailElement !== null
 						? {
-								id: emailElement.getAttribute("id") ?? "",
+								id: emailElement.getAttribute('id') ?? '',
 								domain:
-									emailElement.getAttribute("domain") ?? "",
-						  }
+									emailElement.getAttribute('domain') ?? '',
+							}
 						: null,
 				link:
 					linkElement !== null
 						? {
-								href: linkElement.getAttribute("href") ?? "",
-								text: getElementValue(linkElement, "text"),
-								type: getElementValue(linkElement, "type"),
-						  }
+								href: linkElement.getAttribute('href') ?? '',
+								text: getElementValue(linkElement, 'text'),
+								type: getElementValue(linkElement, 'type'),
+							}
 						: null,
 			}
 		}
 
 		// Parse and store the link element and its associated data
-		const linkElement = querySelectDirectDescendant(metadata, "link")
+		const linkElement = querySelectDirectDescendant(metadata, 'link')
 		if (linkElement !== null) {
 			output.metadata.link = {
-				href: linkElement.getAttribute("href") ?? "",
-				text: getElementValue(linkElement, "text"),
-				type: getElementValue(linkElement, "type"),
+				href: linkElement.getAttribute('href') ?? '',
+				text: getElementValue(linkElement, 'text'),
+				type: getElementValue(linkElement, 'type'),
 			}
 		}
 	}
 
 	// Parse and store all waypoints
-	const waypoints = Array.from(output.xml.querySelectorAll("wpt"))
+	const waypoints = Array.from(output.xml.querySelectorAll('wpt'))
 	for (const waypoint of waypoints) {
 		const point: Waypoint = {
-			name: getElementValue(waypoint, "name"),
-			symbol: getElementValue(waypoint, "sym"),
-			latitude: parseFloat(waypoint.getAttribute("lat") ?? ""),
-			longitude: parseFloat(waypoint.getAttribute("lon") ?? ""),
+			name: getElementValue(waypoint, 'name'),
+			symbol: getElementValue(waypoint, 'sym'),
+			latitude: parseFloat(waypoint.getAttribute('lat') ?? ''),
+			longitude: parseFloat(waypoint.getAttribute('lon') ?? ''),
 			elevation: null,
-			comment: getElementValue(waypoint, "cmt"),
-			description: getElementValue(waypoint, "desc"),
+			comment: getElementValue(waypoint, 'cmt'),
+			description: getElementValue(waypoint, 'desc'),
 			time: null,
 		}
 
-		const rawElevation = parseFloat(getElementValue(waypoint, "ele") ?? "")
-		point.elevation = isNaN(rawElevation) ? null : rawElevation
+		const rawElevation = parseFloat(getElementValue(waypoint, 'ele') ?? '')
+		point.elevation = Number.isNaN(rawElevation) ? null : rawElevation
 
-		const rawTime = getElementValue(waypoint, "time")
+		const rawTime = getElementValue(waypoint, 'time')
 		point.time = rawTime == null ? null : new Date(rawTime)
 
 		output.waypoints.push(point)
 	}
 
-	const routes = Array.from(output.xml.querySelectorAll("rte"))
+	const routes = Array.from(output.xml.querySelectorAll('rte'))
 	for (const routeElement of routes) {
 		const route: Route = {
-			name: getElementValue(routeElement, "name"),
-			comment: getElementValue(routeElement, "cmt"),
-			description: getElementValue(routeElement, "desc"),
-			src: getElementValue(routeElement, "src"),
-			number: getElementValue(routeElement, "number"),
+			name: getElementValue(routeElement, 'name'),
+			comment: getElementValue(routeElement, 'cmt'),
+			description: getElementValue(routeElement, 'desc'),
+			src: getElementValue(routeElement, 'src'),
+			number: getElementValue(routeElement, 'number'),
 			type: null,
 			link: null,
 			points: [],
@@ -178,36 +178,36 @@ export const parseGPXWithCustomParser = (
 			slopes: [],
 		}
 
-		const type = querySelectDirectDescendant(routeElement, "type")
+		const type = querySelectDirectDescendant(routeElement, 'type')
 		route.type = type?.innerHTML ?? type?.textContent ?? null
 
 		// Parse and store the link and its associated data
-		const linkElement = routeElement.querySelector("link")
+		const linkElement = routeElement.querySelector('link')
 		if (linkElement !== null) {
 			route.link = {
-				href: linkElement.getAttribute("href") ?? "",
-				text: getElementValue(linkElement, "text"),
-				type: getElementValue(linkElement, "type"),
+				href: linkElement.getAttribute('href') ?? '',
+				text: getElementValue(linkElement, 'text'),
+				type: getElementValue(linkElement, 'type'),
 			}
 		}
 
 		// Parse and store all points in the route
-		const routePoints = Array.from(routeElement.querySelectorAll("rtept"))
+		const routePoints = Array.from(routeElement.querySelectorAll('rtept'))
 		for (const routePoint of routePoints) {
 			const point: Point = {
-				latitude: parseFloat(routePoint.getAttribute("lat") ?? ""),
-				longitude: parseFloat(routePoint.getAttribute("lon") ?? ""),
+				latitude: parseFloat(routePoint.getAttribute('lat') ?? ''),
+				longitude: parseFloat(routePoint.getAttribute('lon') ?? ''),
 				elevation: null,
 				time: null,
 				extensions: null,
 			}
 
 			const rawElevation = parseFloat(
-				getElementValue(routePoint, "ele") ?? ""
+				getElementValue(routePoint, 'ele') ?? ''
 			)
-			point.elevation = isNaN(rawElevation) ? null : rawElevation
+			point.elevation = Number.isNaN(rawElevation) ? null : rawElevation
 
-			const rawTime = getElementValue(routePoint, "time")
+			const rawTime = getElementValue(routePoint, 'time')
 			point.time = rawTime == null ? null : new Date(rawTime)
 
 			route.points.push(point)
@@ -225,14 +225,14 @@ export const parseGPXWithCustomParser = (
 		output.routes.push(route)
 	}
 
-	const tracks = Array.from(output.xml.querySelectorAll("trk"))
+	const tracks = Array.from(output.xml.querySelectorAll('trk'))
 	for (const trackElement of tracks) {
 		const track: Track = {
-			name: getElementValue(trackElement, "name"),
-			comment: getElementValue(trackElement, "cmt"),
-			description: getElementValue(trackElement, "desc"),
-			src: getElementValue(trackElement, "src"),
-			number: getElementValue(trackElement, "number"),
+			name: getElementValue(trackElement, 'name'),
+			comment: getElementValue(trackElement, 'cmt'),
+			description: getElementValue(trackElement, 'desc'),
+			src: getElementValue(trackElement, 'src'),
+			number: getElementValue(trackElement, 'number'),
 			type: null,
 			link: null,
 			points: [],
@@ -257,32 +257,32 @@ export const parseGPXWithCustomParser = (
 			slopes: [],
 		}
 
-		const type = querySelectDirectDescendant(trackElement, "type")
+		const type = querySelectDirectDescendant(trackElement, 'type')
 		track.type = type?.innerHTML ?? type?.textContent ?? null
 
 		// Parse and store the link and its associated data
-		const linkElement = trackElement.querySelector("link")
+		const linkElement = trackElement.querySelector('link')
 		if (linkElement !== null) {
 			track.link = {
-				href: linkElement.getAttribute("href") ?? "",
-				text: getElementValue(linkElement, "text"),
-				type: getElementValue(linkElement, "type"),
+				href: linkElement.getAttribute('href') ?? '',
+				text: getElementValue(linkElement, 'text'),
+				type: getElementValue(linkElement, 'type'),
 			}
 		}
 
 		// Parse and store all track points
-		const trackPoints = Array.from(trackElement.querySelectorAll("trkpt"))
+		const trackPoints = Array.from(trackElement.querySelectorAll('trkpt'))
 		for (const trackPoint of trackPoints) {
 			const point: Point = {
-				latitude: parseFloat(trackPoint.getAttribute("lat") ?? ""),
-				longitude: parseFloat(trackPoint.getAttribute("lon") ?? ""),
+				latitude: parseFloat(trackPoint.getAttribute('lat') ?? ''),
+				longitude: parseFloat(trackPoint.getAttribute('lon') ?? ''),
 				elevation: null,
 				time: null,
 				extensions: null,
 			}
 
 			// Parse any extensions and store them in an object
-			const extensionsElement = trackPoint.querySelector("extensions")
+			const extensionsElement = trackPoint.querySelector('extensions')
 			if (extensionsElement !== null) {
 				let extensions: Extensions = {}
 				extensions = parseExtensions(
@@ -294,11 +294,11 @@ export const parseGPXWithCustomParser = (
 			}
 
 			const rawElevation = parseFloat(
-				getElementValue(trackPoint, "ele") ?? ""
+				getElementValue(trackPoint, 'ele') ?? ''
 			)
-			point.elevation = isNaN(rawElevation) ? null : rawElevation
+			point.elevation = Number.isNaN(rawElevation) ? null : rawElevation
 
-			const rawTime = getElementValue(trackPoint, "time")
+			const rawTime = getElementValue(trackPoint, 'time')
 			point.time = rawTime == null ? null : new Date(rawTime)
 
 			track.points.push(point)
@@ -340,7 +340,7 @@ const parseExtensions = (
 				child.childNodes[0].textContent
 			) {
 				const textContent = child.childNodes[0].textContent.trim()
-				const value = isNaN(+textContent)
+				const value = Number.isNaN(+textContent)
 					? textContent
 					: parseFloat(textContent)
 				extensions[tagName] = value
@@ -389,12 +389,12 @@ const querySelectDirectDescendant = (
 		// Find the first direct matching direct descendent
 		const result = parent.querySelector(`:scope > ${tag}`)
 		return result
-	} catch (e) {
+	} catch (_e) {
 		// Handle non-browser or older environments that don't support :scope
 		if (parent.childNodes) {
 			return (
 				(Array.from(parent.childNodes) as Element[]).find(
-					(element) => element.tagName == tag
+					(element) => element.tagName === tag
 				) ?? null
 			)
 		} else return null
@@ -403,7 +403,7 @@ const querySelectDirectDescendant = (
 
 export const deleteNullFields = <T>(object: T) => {
 	// Return non-object values as-is
-	if (typeof object !== "object" || object === null || object === undefined) {
+	if (typeof object !== 'object' || object === null || object === undefined) {
 		return
 	}
 
@@ -415,7 +415,7 @@ export const deleteNullFields = <T>(object: T) => {
 
 	// Recursively remove null fields from object
 	for (const [key, value] of Object.entries(object)) {
-		if (value == null || value == undefined) {
+		if (value == null || value === undefined) {
 			delete (object as { [key: string]: any })[key]
 		} else {
 			deleteNullFields(value)
