@@ -20,9 +20,21 @@ export function stringifyGPX(
 ): [string, null] | [null, Error] {
 	try {
 		const doc = gpx.xml.implementation.createDocument(GPX_NS, 'gpx')
-		doc.documentElement.setAttribute('version', '1.1')
-		doc.documentElement.setAttribute('creator', 'gpxjs')
-		writeObject(doc, GPX_NS, GPX_MAPPING, gpx, doc.documentElement)
+		// version/creator fall back to sensible defaults when writing a
+		// ParsedGPX that wasn't parsed from an existing file (e.g. one built
+		// by hand), rather than writing an empty attribute.
+		const gpxWithDefaults = {
+			...gpx,
+			version: gpx.version || '1.1',
+			creator: gpx.creator || 'gpxjs',
+		}
+		writeObject(
+			doc,
+			GPX_NS,
+			GPX_MAPPING,
+			gpxWithDefaults,
+			doc.documentElement
+		)
 		const serializer = customXmlSerializer ?? new XMLSerializer()
 		return [serializer.serializeToString(doc), null]
 	} catch (error) {

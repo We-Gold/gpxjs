@@ -145,6 +145,10 @@ export type ParsedGPXInputs = {
 	routes: Route[]
 	/** Extensions on the root `<gpx>` element itself, as opposed to any of its children. */
 	extensions: Extensions | null
+	/** The `version` attribute of the root `<gpx>` element, e.g. `"1.1"`. */
+	version: string | null
+	/** The `creator` attribute of the root `<gpx>` element, e.g. `"Garmin Connect"`. */
+	creator: string | null
 }
 
 export type Feature = {

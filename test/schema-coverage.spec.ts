@@ -90,6 +90,8 @@ describe.each(parsers)('full schema coverage ($name)', ({ parse }) => {
 		if (error) throw error
 
 		expect(gpx.extensions).toEqual({ gpxExt: 'gpx-value' })
+		expect(gpx.version).toBe('1.1')
+		expect(gpx.creator).toBe('Test Creator')
 
 		expect(gpx.metadata.link).toEqual([
 			{ href: 'https://one.example.com', text: 'One', type: 'Web' },
@@ -180,6 +182,8 @@ describe.each(parsers)('full schema coverage ($name)', ({ parse }) => {
 		if (reparseError) throw reparseError
 
 		expect(reparsed.extensions).toEqual(gpx.extensions)
+		expect(reparsed.version).toBe(gpx.version)
+		expect(reparsed.creator).toBe(gpx.creator)
 		expect(reparsed.metadata.link).toEqual(gpx.metadata.link)
 		expect(reparsed.metadata.extensions).toEqual(gpx.metadata.extensions)
 		expect(reparsed.waypoints[0]).toEqual(gpx.waypoints[0])

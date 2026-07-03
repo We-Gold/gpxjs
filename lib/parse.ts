@@ -76,6 +76,8 @@ export const parseGPXWithCustomParser = (
 		tracks: [],
 		routes: [],
 		extensions: null,
+		version: '',
+		creator: '',
 	}
 
 	// Read every field described by GPX_MAPPING, the same declarative schema
