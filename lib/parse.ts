@@ -72,6 +72,9 @@ export const parseGPXWithCustomParser = (
 			time: '',
 			author: null,
 			link: null,
+			copyright: null,
+			keywords: '',
+			bounds: null,
 		},
 		waypoints: [],
 		tracks: [],
@@ -112,6 +115,16 @@ export const parseGPXWithCustomParser = (
 			}
 		}
 
+		// Parse and store the tree of data associated with the copyright
+		const copyrightElement = metadata.querySelector('copyright')
+		if (copyrightElement !== null) {
+			output.metadata.copyright = {
+				author: copyrightElement.getAttribute('author') ?? '',
+				year: getElementValue(copyrightElement, 'year'),
+				license: getElementValue(copyrightElement, 'license'),
+			}
+		}
+
 		// Parse and store the link element and its associated data
 		const linkElement = querySelectDirectDescendant(metadata, 'link')
 		if (linkElement !== null) {
@@ -119,6 +132,33 @@ export const parseGPXWithCustomParser = (
 				href: linkElement.getAttribute('href') ?? '',
 				text: getElementValue(linkElement, 'text'),
 				type: getElementValue(linkElement, 'type'),
+			}
+		}
+
+		// Store the keywords, a comma-separated list of keywords
+		output.metadata.keywords = getElementValue(metadata, 'keywords')
+
+		// Parse and store the bounding coordinates of the file
+		const boundsElement = metadata.querySelector('bounds')
+		if (boundsElement !== null) {
+			const minLatitude = parseFloat(
+				boundsElement.getAttribute('minlat') ?? ''
+			)
+			const minLongitude = parseFloat(
+				boundsElement.getAttribute('minlon') ?? ''
+			)
+			const maxLatitude = parseFloat(
+				boundsElement.getAttribute('maxlat') ?? ''
+			)
+			const maxLongitude = parseFloat(
+				boundsElement.getAttribute('maxlon') ?? ''
+			)
+
+			output.metadata.bounds = {
+				minLatitude: Number.isNaN(minLatitude) ? null : minLatitude,
+				minLongitude: Number.isNaN(minLongitude) ? null : minLongitude,
+				maxLatitude: Number.isNaN(maxLatitude) ? null : maxLatitude,
+				maxLongitude: Number.isNaN(maxLongitude) ? null : maxLongitude,
 			}
 		}
 	}

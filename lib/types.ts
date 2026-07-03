@@ -4,6 +4,9 @@ export type MetaData = {
 	link: Link | null
 	author: Author | null
 	time: string | null
+	copyright: Copyright | null
+	keywords: string | null
+	bounds: Bounds | null
 }
 
 export type Waypoint = {
@@ -91,6 +94,19 @@ export type Link = {
 	href: string | null
 	text: string | null
 	type: string | null
+}
+
+export type Copyright = {
+	author: string | null
+	year: string | null
+	license: string | null
+}
+
+export type Bounds = {
+	minLatitude: number | null
+	minLongitude: number | null
+	maxLatitude: number | null
+	maxLongitude: number | null
 }
 
 export type ParsedGPXInputs = {

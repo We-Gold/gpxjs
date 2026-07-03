@@ -38,6 +38,7 @@ describe.each(parsers)('parseGPX edge cases ($name)', ({ parse }) => {
 			name: '',
 			description: '',
 			time: '',
+			keywords: '',
 		})
 		expect(parsed.waypoints).toStrictEqual([])
 		expect(parsed.tracks).toStrictEqual([])

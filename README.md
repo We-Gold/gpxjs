@@ -184,13 +184,16 @@ For specific type definition, see [types.ts](./lib/types.ts).
 
 ### Metadata
 
-| Property    | Type        | Description   |
-| ----------- | ----------- | ------------- |
-| name        | String      | File name     |
-| description | String      | Description   |
-| link        | Link object | Web address   |
-| author      | Float       | Author object |
-| time        | String      | Time          |
+| Property    | Type             | Description                              |
+| ----------- | ---------------- | ----------------------------------------- |
+| name        | String           | File name                                |
+| description | String           | Description                              |
+| link        | Link object      | Web address                              |
+| author      | Author object    | Author object                            |
+| time        | String           | Time                                     |
+| copyright   | Copyright object | Copyright holder and license             |
+| keywords    | String           | Comma-separated list of keywords         |
+| bounds      | Bounds object    | Minimum and maximum coordinates covered  |
 
 ### Waypoint
 
@@ -296,3 +299,20 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | href     | String | Web address |
 | text     | String | Link text   |
 | type     | String | Link type   |
+
+### Copyright
+
+| Property | Type   | Description                            |
+| -------- | ------ | --------------------------------------- |
+| author   | String | Copyright holder                        |
+| year     | String | Copyright year                          |
+| license  | String | License URI                             |
+
+### Bounds
+
+| Property     | Type  | Description                    |
+| ------------ | ----- | ------------------------------- |
+| minLatitude  | Float | Minimum latitude of the file   |
+| minLongitude | Float | Minimum longitude of the file  |
+| maxLatitude  | Float | Maximum latitude of the file   |
+| maxLongitude | Float | Maximum longitude of the file  |
