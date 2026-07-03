@@ -1,27 +1,26 @@
-import { expect, test, assertType, describe } from "vitest"
+import { describe, expect, test } from 'vitest'
 
-import { XMLSerializer as QsaXMLSerializer } from "xmldom-qsa"
-import { parseGPX } from "../lib/index";
-import { stringifyGPX } from "../lib/stringify";
+import { XMLSerializer as QsaXMLSerializer } from 'xmldom-qsa'
+import { parseGPX } from '../lib/index'
+import { stringifyGPX } from '../lib/stringify'
 
-import { testGPXFile } from "./test-gpx-file"
+import { testGPXFile } from './test-gpx-file'
 
-describe("stringfy", () => {
-  test("converts ParsedGPX to string", () => {
-    const [gpx, error] = parseGPX(testGPXFile);
-    const xml = stringifyGPX(gpx);
-    expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML));
-  })
+describe('stringfy', () => {
+	test('converts ParsedGPX to string', () => {
+		const [gpx, _error] = parseGPX(testGPXFile)
+		const xml = stringifyGPX(gpx)
+		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
+	})
 
-  test("converts ParsedGPX to string with custom XMLSerializer", () => {
-    const [gpx, error] = parseGPX(testGPXFile);
-    const xml = stringifyGPX(gpx, new QsaXMLSerializer());
-    expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML));
-  })
-});
+	test('converts ParsedGPX to string with custom XMLSerializer', () => {
+		const [gpx, _error] = parseGPX(testGPXFile)
+		const xml = stringifyGPX(gpx, new QsaXMLSerializer())
+		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
+	})
+})
 
-const EXPECTED_XML =
-`<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="gpxjs">
+const EXPECTED_XML = `<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="gpxjs">
   <metadata>
     <name>GPX Test</name>
     <desc>Test Description</desc>
@@ -102,22 +101,22 @@ const EXPECTED_XML =
  ****/
 
 const XSLT_PRETTY_PRINT = [
-  '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
-  '  <xsl:template match="node()|@*">',
-  '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
-  '  </xsl:template>',
-  '  <xsl:output indent="yes"/>',
-  '</xsl:stylesheet>',
-].join('\n');
+	'<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
+	'  <xsl:template match="node()|@*">',
+	'    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
+	'  </xsl:template>',
+	'  <xsl:output indent="yes"/>',
+	'</xsl:stylesheet>',
+].join('\n')
 
 function prettyPrintXml(xml) {
-  const parser = new DOMParser();
+	const parser = new DOMParser()
 
-  const xsltDoc = parser.parseFromString(XSLT_PRETTY_PRINT, 'text/xml');
-  const xsltProcessor = new XSLTProcessor();
-  xsltProcessor.importStylesheet(xsltDoc);
+	const xsltDoc = parser.parseFromString(XSLT_PRETTY_PRINT, 'text/xml')
+	const xsltProcessor = new XSLTProcessor()
+	xsltProcessor.importStylesheet(xsltDoc)
 
-  const doc = parser.parseFromString(xml, 'text/xml');
-  const prettyDoc = xsltProcessor.transformToDocument(doc);
-  return new XMLSerializer().serializeToString(prettyDoc);
+	const doc = parser.parseFromString(xml, 'text/xml')
+	const prettyDoc = xsltProcessor.transformToDocument(doc)
+	return new XMLSerializer().serializeToString(prettyDoc)
 }
