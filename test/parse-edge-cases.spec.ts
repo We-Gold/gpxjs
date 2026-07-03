@@ -39,6 +39,7 @@ describe.each(parsers)('parseGPX edge cases ($name)', ({ parse }) => {
 			description: '',
 			time: '',
 			keywords: '',
+			link: [],
 		})
 		expect(parsed.waypoints).toStrictEqual([])
 		expect(parsed.tracks).toStrictEqual([])
@@ -53,6 +54,7 @@ describe.each(parsers)('parseGPX edge cases ($name)', ({ parse }) => {
 			name: 'No Coordinates',
 			latitude: NaN,
 			longitude: NaN,
+			link: [],
 		})
 	})
 
@@ -64,6 +66,7 @@ describe.each(parsers)('parseGPX edge cases ($name)', ({ parse }) => {
 			name: 'No Time Or Elevation',
 			latitude: 47.253146555709,
 			longitude: -1.5153741828293,
+			link: [],
 		})
 	})
 
@@ -77,6 +80,7 @@ describe.each(parsers)('parseGPX edge cases ($name)', ({ parse }) => {
 			duration: { cumulative: [0], movingDuration: 0, totalDuration: 0 },
 			elevation: {},
 			slopes: [],
+			link: [],
 		}
 
 		expect(parsed.tracks[0]).toStrictEqual({

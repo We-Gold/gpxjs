@@ -16,7 +16,7 @@ test('an empty element with no innerHTML support reads as null', () => {
 		'text/xml'
 	)
 
-	const read: any = {}
+	const read: Record<string, unknown> = {}
 	readObject(
 		{ name: scalar() },
 		doc.documentElement as unknown as Element,

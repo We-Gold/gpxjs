@@ -64,7 +64,6 @@ describe('stringfy', () => {
 
 		const throwingSerializer = {
 			serializeToString(): string {
-				// biome-ignore lint/style/useThrowOnlyError: exercising the non-Error fallback path
 				throw 'boom'
 			},
 		}

@@ -1,13 +1,17 @@
 export type MetaData = {
 	name: string | null
 	description: string | null
-	link: Link | null
+	link: Link[]
 	author: Author | null
 	time: string | null
 	copyright: Copyright | null
 	keywords: string | null
 	bounds: Bounds | null
+	extensions: Extensions | null
 }
+
+/** GPS fix quality, as reported by a device for a waypoint/track/route point. */
+export type WaypointFix = 'none' | '2d' | '3d' | 'dgps' | 'pps'
 
 export type Waypoint = {
 	name: string | null
@@ -18,6 +22,19 @@ export type Waypoint = {
 	longitude: number
 	elevation: number | null
 	time: Date | null
+	magneticVariation: number | null
+	geoidHeight: number | null
+	src: string | null
+	link: Link[]
+	type: string | null
+	fix: WaypointFix | null
+	satellites: number | null
+	hdop: number | null
+	vdop: number | null
+	pdop: number | null
+	ageOfDgpsData: number | null
+	dgpsId: number | null
+	extensions: Extensions | null
 }
 
 export type Track = {
@@ -26,13 +43,23 @@ export type Track = {
 	description: string | null
 	src: string | null
 	number: string | null
-	link: Link | null
+	link: Link[]
 	type: string | null
 	points: Point[]
 	distance: Distance
 	duration: Duration
 	elevation: Elevation
 	slopes: number[]
+	extensions: Extensions | null
+	/**
+	 * Extensions from the track's `<trkseg>` element(s), kept separate from
+	 * the track's own `<trk>`-level `extensions` above since the schema
+	 * allows both. A `<trk>` can have more than one `<trkseg>`, but `points`
+	 * is a flat array with no notion of segment boundaries, so only the
+	 * first `<trkseg>` that has an `<extensions>` element is reflected here;
+	 * every `<trkseg>`'s points are still included in `points`.
+	 */
+	segmentExtensions: Extensions | null
 }
 
 export type Route = {
@@ -41,22 +68,23 @@ export type Route = {
 	description: string | null
 	src: string | null
 	number: string | null
-	link: Link | null
+	link: Link[]
 	type: string | null
 	points: Point[]
 	distance: Distance
 	elevation: Elevation
 	duration: Duration
 	slopes: number[]
-}
-
-export type Point = {
-	latitude: number
-	longitude: number
-	elevation: number | null
-	time: Date | null
 	extensions: Extensions | null
 }
+
+/**
+ * A `<trkpt>`/`<rtept>`. The GPX 1.1 XSD defines these as literally the same
+ * element type as a standalone `<wpt>` (`wptType`), so `Point` and
+ * `Waypoint` are the same shape here too, rather than `Point` only exposing
+ * a handful of the fields a track/route point can legally carry.
+ */
+export type Point = Waypoint
 
 export type Distance = {
 	total: number
@@ -115,6 +143,8 @@ export type ParsedGPXInputs = {
 	waypoints: Waypoint[]
 	tracks: Track[]
 	routes: Route[]
+	/** Extensions on the root `<gpx>` element itself, as opposed to any of its children. */
+	extensions: Extensions | null
 }
 
 export type Feature = {
@@ -124,7 +154,7 @@ export type Feature = {
 		coordinates: (number | null)[][]
 	}
 	properties: {
-		[key: string]: string | number | Link | null
+		[key: string]: string | number | Link | Link[] | null
 	}
 }
 
@@ -135,7 +165,7 @@ export type WaypointFeature = {
 		coordinates: (number | null)[]
 	}
 	properties: {
-		[key: string]: string | number | Link | null
+		[key: string]: string | number | Link | Link[] | null
 	}
 }
 

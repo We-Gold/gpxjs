@@ -204,71 +204,83 @@ For specific type definition, see [types.ts](./lib/types.ts).
 
 ### Metadata
 
-| Property    | Type             | Description                              |
-| ----------- | ---------------- | ----------------------------------------- |
-| name        | String           | File name                                |
-| description | String           | Description                              |
-| link        | Link object      | Web address                              |
-| author      | Author object    | Author object                            |
-| time        | String           | Time                                     |
-| copyright   | Copyright object | Copyright holder and license             |
-| keywords    | String           | Comma-separated list of keywords         |
-| bounds      | Bounds object    | Minimum and maximum coordinates covered  |
+| Property    | Type             | Description                               |
+| ----------- | ---------------- | ------------------------------------------ |
+| name        | String           | File name                                 |
+| description | String           | Description                               |
+| link        | Array of Links   | Web addresses                             |
+| author      | Author object    | Author object                             |
+| time        | String           | Time                                      |
+| copyright   | Copyright object | Copyright holder and license              |
+| keywords    | String           | Comma-separated list of keywords          |
+| bounds      | Bounds object    | Minimum and maximum coordinates covered   |
+| extensions  | Object           | Arbitrary extra data from `<extensions>`  |
 
 ### Waypoint
 
-| Property    | Type   | Description       |
-| ----------- | ------ | ----------------- |
-| name        | String | Point name        |
-| comment     | String | Comment           |
-| description | String | Point description |
-| latitude    | Float  | Point latitute    |
-| longitude   | Float  | Point longitude   |
-| elevation   | Float  | Point elevation   |
-| time        | Date   | Point time        |
+| Property          | Type           | Description                                        |
+| ----------------- | -------------- | --------------------------------------------------- |
+| name              | String         | Point name                                          |
+| comment           | String         | Comment                                             |
+| description       | String         | Point description                                   |
+| latitude          | Float          | Point latitude                                      |
+| longitude         | Float          | Point longitude                                     |
+| elevation         | Float          | Point elevation                                     |
+| time              | Date           | Point time                                          |
+| magneticVariation | Float          | Magnetic variation at the point                     |
+| geoidHeight       | Float          | Height of the geoid above the WGS84 ellipsoid       |
+| src               | String         | Source device                                       |
+| link              | Array of Links | Web addresses                                       |
+| type              | String         | Waypoint classification                             |
+| fix               | String         | GPS fix type: `none`, `2d`, `3d`, `dgps`, or `pps`  |
+| satellites        | Integer        | Number of satellites used to calculate the fix      |
+| hdop              | Float          | Horizontal dilution of precision                    |
+| vdop              | Float          | Vertical dilution of precision                      |
+| pdop              | Float          | Position dilution of precision                      |
+| ageOfDgpsData     | Float          | Seconds since the last DGPS update                  |
+| dgpsId            | Integer        | ID of the DGPS station used                         |
+| extensions        | Object         | Arbitrary extra data from `<extensions>`            |
 
 ### Track
 
-| Property    | Type             | Description                           |
-| ----------- | ---------------- | ------------------------------------- |
-| name        | String           | Point name                            |
-| comment     | String           | Comment                               |
-| description | String           | Point description                     |
-| src         | String           | Source device                         |
-| number      | String           | Track identifier                      |
-| link        | String           | Link to a web address                 |
-| type        | String           | Track type                            |
-| points      | Array            | Array of Points                       |
-| distance    | Distance Object  | Distance information about the Track  |
-| duration    | Duration Object  | Duration information about the Track  |
-| elevation   | Elevation Object | Elevation information about the Track |
-| slopes      | Float Array      | Slope of each sub-segment             |
+| Property          | Type             | Description                                           |
+| ----------------- | ---------------- | ------------------------------------------------------ |
+| name              | String           | Point name                                             |
+| comment           | String           | Comment                                                |
+| description       | String           | Point description                                      |
+| src               | String           | Source device                                          |
+| number            | String           | Track identifier                                       |
+| link              | Array of Links   | Web addresses                                          |
+| type              | String           | Track type                                             |
+| points            | Array            | Array of Points                                        |
+| distance          | Distance Object  | Distance information about the Track                   |
+| duration          | Duration Object  | Duration information about the Track                   |
+| elevation         | Elevation Object | Elevation information about the Track                  |
+| slopes            | Float Array      | Slope of each sub-segment                              |
+| extensions        | Object           | Arbitrary extra data from `<trk>`'s `<extensions>`     |
+| segmentExtensions | Object           | Arbitrary extra data from `<trkseg>`'s `<extensions>`  |
 
 ### Route
 
-| Property    | Type             | Description                           |
-| ----------- | ---------------- | ------------------------------------- |
-| name        | String           | Point name                            |
-| comment     | String           | Comment                               |
-| description | String           | Point description                     |
-| src         | String           | Source device                         |
-| number      | String           | Track identifier                      |
-| link        | String           | Link to a web address                 |
-| type        | String           | Route type                            |
-| points      | Array            | Array of Points                       |
-| distance    | Distance Object  | Distance information about the Route  |
-| duration    | Duration Object  | Duration information about the Route  |
-| elevation   | Elevation Object | Elevation information about the Route |
-| slopes      | Float Array      | Slope of each sub-segment             |
+| Property    | Type             | Description                              |
+| ----------- | ---------------- | ------------------------------------------ |
+| name        | String           | Point name                               |
+| comment     | String           | Comment                                  |
+| description | String           | Point description                        |
+| src         | String           | Source device                            |
+| number      | String           | Track identifier                         |
+| link        | Array of Links   | Web addresses                            |
+| type        | String           | Route type                               |
+| points      | Array            | Array of Points                          |
+| distance    | Distance Object  | Distance information about the Route     |
+| duration    | Duration Object  | Duration information about the Route     |
+| elevation   | Elevation Object | Elevation information about the Route    |
+| slopes      | Float Array      | Slope of each sub-segment                |
+| extensions  | Object           | Arbitrary extra data from `<extensions>` |
 
 ### Point
 
-| Property  | Type  | Description     |
-| --------- | ----- | --------------- |
-| latitude  | Float | Point latitute  |
-| longitude | Float | Point longitude |
-| elevation | Float | Point elevation |
-| time      | Date  | Point time      |
+The GPX 1.1 XSD defines `<trkpt>`/`<rtept>` as the same element type as a standalone `<wpt>`, so `Point` (a track/route point) has the exact same fields as [Waypoint](#waypoint) above.
 
 ### Distance
 

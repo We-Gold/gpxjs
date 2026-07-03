@@ -66,14 +66,16 @@ export const parseGPXWithCustomParser = (
 			description: '',
 			time: '',
 			author: null,
-			link: null,
+			link: [],
 			copyright: null,
 			keywords: '',
 			bounds: null,
+			extensions: null,
 		},
 		waypoints: [],
 		tracks: [],
 		routes: [],
+		extensions: null,
 	}
 
 	// Read every field described by GPX_MAPPING, the same declarative schema

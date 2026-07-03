@@ -16,6 +16,18 @@
 		"useEditorconfig": true
 	},
 	"linter": { "enabled": true, "rules": { "preset": "recommended" } },
+	"overrides": [
+		{
+			"includes": ["lib/xml_object_mapping.ts"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		}
+	],
 	"javascript": {
 		"formatter": {
 			"jsxQuoteStyle": "double",

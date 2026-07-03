@@ -1,6 +1,13 @@
 import { DEFAULT_OPTIONS } from './options'
 import type { Distance, Duration, Elevation, Options, Point } from './types'
 
+// calculateDistance/Duration/Elevation/Slopes each take different extra
+// arguments and return different types, so this shared type has to be able
+// to describe all of them at once. Narrowing args/the return type to
+// `unknown` would make those concrete functions fail to typecheck against
+// this alias, since `unknown` can't stand in for a specific parameter type
+// like `Distance` or `Options`.
+// biome-ignore lint/suspicious/noExplicitAny: see comment above
 export type MathHelperFunction = (points: Point[], ...args: any[]) => any
 
 /**

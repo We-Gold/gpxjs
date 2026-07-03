@@ -104,11 +104,13 @@ export const expectedMetadata: Partial<MetaData> = {
 	name: 'GPX Test',
 	description: 'Test Description',
 	time: '2020-01-12T21:32:52',
-	link: {
-		href: 'https://test2.com',
-		text: 'General Website',
-		type: 'Web',
-	},
+	link: [
+		{
+			href: 'https://test2.com',
+			text: 'General Website',
+			type: 'Web',
+		},
+	],
 	author: {
 		name: 'Test Author',
 		email: {
@@ -143,6 +145,7 @@ export const expectedWaypoint: Partial<Waypoint> = {
 	comment: 'Warning',
 	description: 'Route',
 	time: new Date('2020-02-02T07:54:30.000Z'),
+	link: [],
 }
 
 export const expectedTrack: ExpectedTrackOrRoute = {
@@ -152,11 +155,13 @@ export const expectedTrack: ExpectedTrackOrRoute = {
 	src: 'GPX Test Device',
 	number: '1',
 	type: 'MTB',
-	link: {
-		href: 'https://test.com',
-		text: 'Track Website',
-		type: 'Web',
-	},
+	link: [
+		{
+			href: 'https://test.com',
+			text: 'Track Website',
+			type: 'Web',
+		},
+	],
 	distance: {
 		cumulative: [0],
 		total: 0,
@@ -185,6 +190,7 @@ export const expectedTrack: ExpectedTrackOrRoute = {
 			latitude: 47.2278526991611,
 			longitude: -1.5521714646550901,
 			time: new Date('2020-02-02T07:54:30.000Z'),
+			link: [],
 		},
 	],
 	slopes: [],
@@ -197,11 +203,13 @@ export const expectedRoute: ExpectedTrackOrRoute = {
 	src: 'GPX Test Device',
 	number: '1',
 	type: 'MTB',
-	link: {
-		href: 'https://test.com',
-		text: 'Route Website',
-		type: 'Web',
-	},
+	link: [
+		{
+			href: 'https://test.com',
+			text: 'Route Website',
+			type: 'Web',
+		},
+	],
 	distance: {
 		cumulative: [0],
 		total: 0,
@@ -222,6 +230,7 @@ export const expectedRoute: ExpectedTrackOrRoute = {
 			longitude: -1.5521714646550901,
 			elevation: 12.36,
 			time: new Date('2020-02-02T07:54:30.000Z'),
+			link: [],
 		},
 	],
 	slopes: [],
