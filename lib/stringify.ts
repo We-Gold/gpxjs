@@ -108,13 +108,13 @@ function ExtensionsMapping(
 ) {
 	for (const key in srcObj) {
 		const elem = doc.createElementNS(GPX_NS, key)
-		dstElem.append(elem)
+		dstElem.appendChild(elem)
 		const value = srcObj[key]
 		if (typeof value === 'object') {
 			ExtensionsMapping(doc, value, elem)
 		} else {
 			const node = doc.createTextNode(value.toString())
-			elem.append(node)
+			elem.appendChild(node)
 		}
 	}
 }
@@ -237,12 +237,12 @@ class XmlMapper {
 			if (forMapping) {
 				for (const value of fieldValue) {
 					const elem = this.doc.createElementNS(GPX_NS, fieldName)
-					dstElem.append(elem)
+					dstElem.appendChild(elem)
 					this.mapObject(forMapping, value, elem)
 				}
 			} else {
 				const elem = this.doc.createElementNS(GPX_NS, fieldName)
-				dstElem.append(elem)
+				dstElem.appendChild(elem)
 
 				const funcMapping = fieldMapping[FUNC_PROPERTY]
 				if (funcMapping) {
@@ -261,9 +261,9 @@ class XmlMapper {
 				dstElem.setAttribute(fieldName, value)
 			} else {
 				const valueElem = this.doc.createElementNS(GPX_NS, fieldName)
-				dstElem.append(valueElem)
+				dstElem.appendChild(valueElem)
 				const node = this.doc.createTextNode(value)
-				valueElem.append(node)
+				valueElem.appendChild(node)
 			}
 		} else {
 			throw new Error(`Unsupported field mapping: ${mapping}`)

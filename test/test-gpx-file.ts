@@ -1,3 +1,18 @@
+import type { MetaData, Point, Route, Track, Waypoint } from '../lib/types'
+
+// These fixtures only cover the fields that survive parsing with default
+// options (see the comment on expectedMetadata below). This helper marks
+// the nested object fields as partial too, since Partial<T> alone only
+// applies one level deep.
+type ExpectedTrackOrRoute = Partial<
+	Omit<Track | Route, 'distance' | 'duration' | 'elevation' | 'points'>
+> & {
+	distance?: Partial<Track['distance']>
+	duration?: Partial<Track['duration']>
+	elevation?: Partial<Track['elevation']>
+	points?: Partial<Point>[]
+}
+
 export const testGPXFile = `<?xml version="1.0" encoding="UTF-8" ?>
 <gpx version="1.1" creator="Test Creator">
     <metadata>
@@ -82,7 +97,10 @@ export const testGPXFile = `<?xml version="1.0" encoding="UTF-8" ?>
     </rte>
 </gpx>`
 
-export const expectedMetadata = {
+// Fields are omitted here because the default `removeEmptyFields` option
+// strips null values from the parsed output, so these fixtures only cover
+// the fields that survive parsing with default options.
+export const expectedMetadata: Partial<MetaData> = {
 	name: 'GPX Test',
 	description: 'Test Description',
 	time: '2020-01-12T21:32:52',
@@ -105,7 +123,7 @@ export const expectedMetadata = {
 	},
 }
 
-export const expectedWaypoint = {
+export const expectedWaypoint: Partial<Waypoint> = {
 	name: 'Porte de Carquefou',
 	latitude: 47.253146555709,
 	longitude: -1.5153741828293,
@@ -115,7 +133,7 @@ export const expectedWaypoint = {
 	time: new Date('2020-02-02T07:54:30.000Z'),
 }
 
-export const expectedTrack = {
+export const expectedTrack: ExpectedTrackOrRoute = {
 	name: 'Track',
 	comment: 'Bridge',
 	description: 'Test track',
@@ -160,7 +178,7 @@ export const expectedTrack = {
 	slopes: [],
 }
 
-export const expectedRoute = {
+export const expectedRoute: ExpectedTrackOrRoute = {
 	name: 'Track',
 	comment: 'Bridge',
 	description: 'Test route',

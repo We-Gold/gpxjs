@@ -1,20 +1,41 @@
 import { describe, expect, test } from 'vitest'
 
-import { XMLSerializer as QsaXMLSerializer } from 'xmldom-qsa'
-import { parseGPX } from '../lib/index'
+import {
+	DOMParser as QsaDOMParser,
+	XMLSerializer as QsaXMLSerializer,
+} from 'xmldom-qsa'
+import { parseGPX, parseGPXWithCustomParser } from '../lib/index'
 import { stringifyGPX } from '../lib/stringify'
 
 import { testGPXFile } from './test-gpx-file'
 
 describe('stringfy', () => {
 	test('converts ParsedGPX to string', () => {
-		const [gpx, _error] = parseGPX(testGPXFile)
+		const [gpx, error] = parseGPX(testGPXFile)
+		if (error) throw error
+
 		const xml = stringifyGPX(gpx)
 		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
 	})
 
 	test('converts ParsedGPX to string with custom XMLSerializer', () => {
-		const [gpx, _error] = parseGPX(testGPXFile)
+		const [gpx, error] = parseGPX(testGPXFile)
+		if (error) throw error
+
+		const xml = stringifyGPX(gpx, new QsaXMLSerializer())
+		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
+	})
+
+	test('round-trips through the non-browser (xmldom-qsa) parser and serializer', () => {
+		const customParseMethod = (txt: string) =>
+			new QsaDOMParser().parseFromString(txt, 'text/xml')
+
+		const [gpx, error] = parseGPXWithCustomParser(
+			testGPXFile,
+			customParseMethod
+		)
+		if (error) throw error
+
 		const xml = stringifyGPX(gpx, new QsaXMLSerializer())
 		expect(prettyPrintXml(xml)).toEqual(prettyPrintXml(EXPECTED_XML))
 	})
@@ -109,7 +130,7 @@ const XSLT_PRETTY_PRINT = [
 	'</xsl:stylesheet>',
 ].join('\n')
 
-function prettyPrintXml(xml) {
+function prettyPrintXml(xml: string): string {
 	const parser = new DOMParser()
 
 	const xsltDoc = parser.parseFromString(XSLT_PRETTY_PRINT, 'text/xml')

@@ -38,6 +38,7 @@
 		"pack-test": "npm pack --dry-run",
 		"preview": "vite preview",
 		"test": "vitest",
+		"coverage": "vitest run --coverage",
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
 		"format": "biome format --write ."
@@ -47,6 +48,7 @@
 		"@types/node": "^24.13.2",
 		"@vitest/browser": "^4.1.9",
 		"@vitest/browser-playwright": "^4.1.9",
+		"@vitest/coverage-v8": "^4.1.9",
 		"playwright": "^1.61.1",
 		"typescript": "^6.0.3",
 		"vite": "^8.1.3",
