@@ -52,10 +52,12 @@ export type Track = {
 	slopes: number[]
 	extensions: Extensions | null
 	/**
-	 * Extensions from the track's `<trkseg>` element, kept separate from the
-	 * track's own `<trk>`-level `extensions` above since the schema allows
-	 * both. Like `points`, this only reflects the first `<trkseg>` if a track
-	 * has more than one, matching the existing points-flattening behavior.
+	 * Extensions from the track's `<trkseg>` element(s), kept separate from
+	 * the track's own `<trk>`-level `extensions` above since the schema
+	 * allows both. A `<trk>` can have more than one `<trkseg>`, but `points`
+	 * is a flat array with no notion of segment boundaries, so only the
+	 * first `<trkseg>` that has an `<extensions>` element is reflected here;
+	 * every `<trkseg>`'s points are still included in `points`.
 	 */
 	segmentExtensions: Extensions | null
 }
@@ -76,13 +78,13 @@ export type Route = {
 	extensions: Extensions | null
 }
 
-export type Point = {
-	latitude: number
-	longitude: number
-	elevation: number | null
-	time: Date | null
-	extensions: Extensions | null
-}
+/**
+ * A `<trkpt>`/`<rtept>`. The GPX 1.1 XSD defines these as literally the same
+ * element type as a standalone `<wpt>` (`wptType`), so `Point` and
+ * `Waypoint` are the same shape here too, rather than `Point` only exposing
+ * a handful of the fields a track/route point can legally carry.
+ */
+export type Point = Waypoint
 
 export type Distance = {
 	total: number

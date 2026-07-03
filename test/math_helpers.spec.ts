@@ -15,10 +15,26 @@ import type { Point } from '../lib/types'
 
 function point(overrides: Partial<Point> = {}): Point {
 	return {
+		name: null,
+		symbol: null,
+		comment: null,
+		description: null,
 		latitude: 0,
 		longitude: 0,
 		elevation: null,
 		time: null,
+		magneticVariation: null,
+		geoidHeight: null,
+		src: null,
+		link: [],
+		type: null,
+		fix: null,
+		satellites: null,
+		hdop: null,
+		vdop: null,
+		pdop: null,
+		ageOfDgpsData: null,
+		dgpsId: null,
 		extensions: null,
 		...overrides,
 	}

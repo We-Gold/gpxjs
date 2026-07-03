@@ -7,11 +7,12 @@ import {
 import { parseGPX, parseGPXWithCustomParser } from '../lib/index'
 import { stringifyGPX } from '../lib/stringify'
 
-// Covers the GPX 1.1 XSD fields that #29 found missing from GPX_MAPPING:
-// extensions at levels other than points, multiple <link> elements, and
-// most of wptType. See the comment on Track['segmentExtensions'] in
-// types.ts for why <trk> and <trkseg> extensions are kept as two fields
-// instead of one.
+// Covers the GPX 1.1 XSD fields that #29 and #34 found missing from
+// GPX_MAPPING: extensions at levels other than points, multiple <link>
+// elements, the full wptType field set on trkpt/rtept (not just waypoints),
+// and a <trk> with more than one <trkseg>. See the comment on
+// Track['segmentExtensions'] in types.ts for why <trk> and <trkseg>
+// extensions are kept as two fields instead of one.
 const SCHEMA_COVERAGE_GPX = `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Test Creator">
     <metadata>
@@ -46,7 +47,16 @@ const SCHEMA_COVERAGE_GPX = `<?xml version="1.0" encoding="UTF-8"?>
         <extensions><trkExt>trk-value</trkExt></extensions>
         <trkseg>
             <extensions><segExt>seg-value</segExt></extensions>
-            <trkpt lat="1.0" lon="2.0"><ele>5</ele><time>2020-01-01T00:00:00Z</time></trkpt>
+            <trkpt lat="1.0" lon="2.0">
+                <ele>5</ele>
+                <time>2020-01-01T00:00:00Z</time>
+                <name>Track Point</name>
+                <sym>Flag</sym>
+                <fix>3d</fix>
+            </trkpt>
+        </trkseg>
+        <trkseg>
+            <trkpt lat="1.1" lon="2.1"><ele>6</ele><time>2020-01-01T00:00:01Z</time></trkpt>
         </trkseg>
     </trk>
     <rte>
@@ -54,7 +64,11 @@ const SCHEMA_COVERAGE_GPX = `<?xml version="1.0" encoding="UTF-8"?>
         <link href="https://rte-one.example.com"><text>Rte One</text><type>Web</type></link>
         <link href="https://rte-two.example.com"><text>Rte Two</text><type>Web</type></link>
         <extensions><rteExt>rte-value</rteExt></extensions>
-        <rtept lat="1.0" lon="2.0"><ele>5</ele><time>2020-01-01T00:00:00Z</time></rtept>
+        <rtept lat="1.0" lon="2.0">
+            <ele>5</ele>
+            <time>2020-01-01T00:00:00Z</time>
+            <name>Route Point</name>
+        </rtept>
     </rte>
     <extensions><gpxExt>gpx-value</gpxExt></extensions>
 </gpx>`
@@ -125,6 +139,17 @@ describe.each(parsers)('full schema coverage ($name)', ({ parse }) => {
 		expect(track.extensions).toEqual({ trkExt: 'trk-value' })
 		expect(track.segmentExtensions).toEqual({ segExt: 'seg-value' })
 
+		// Two <trkseg> elements: both sets of points are kept (#34), and the
+		// first trkpt's wptType fields (name/sym/fix) survive on `points`
+		// rather than being dropped like they used to be.
+		expect(track.points).toHaveLength(2)
+		expect(track.points[0]).toMatchObject({
+			name: 'Track Point',
+			symbol: 'Flag',
+			fix: '3d',
+		})
+		expect(track.points[1]).toMatchObject({ latitude: 1.1, longitude: 2.1 })
+
 		const route = gpx.routes[0]
 		expect(route.link).toEqual([
 			{
@@ -139,6 +164,7 @@ describe.each(parsers)('full schema coverage ($name)', ({ parse }) => {
 			},
 		])
 		expect(route.extensions).toEqual({ rteExt: 'rte-value' })
+		expect(route.points[0]).toMatchObject({ name: 'Route Point' })
 	})
 
 	test('round-trips every new field through stringifyGPX', () => {
@@ -162,7 +188,12 @@ describe.each(parsers)('full schema coverage ($name)', ({ parse }) => {
 		expect(reparsed.tracks[0].segmentExtensions).toEqual(
 			gpx.tracks[0].segmentExtensions
 		)
+		// The two original <trkseg> elements collapse into one on write (see
+		// the comment on Track['segmentExtensions'] in types.ts), but no
+		// point data is lost in the process.
+		expect(reparsed.tracks[0].points).toEqual(gpx.tracks[0].points)
 		expect(reparsed.routes[0].link).toEqual(gpx.routes[0].link)
 		expect(reparsed.routes[0].extensions).toEqual(gpx.routes[0].extensions)
+		expect(reparsed.routes[0].points).toEqual(gpx.routes[0].points)
 	})
 })

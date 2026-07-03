@@ -242,6 +242,61 @@ describe('unwrap (self) fields', () => {
 		const written = writeXml(mapping, { points: [{ value: '1' }] })
 		expect(written.querySelector('seg > pt')?.getAttribute('v')).toBe('1')
 	})
+
+	describe('when the wrapper element repeats', () => {
+		// Mirrors a <trk> with more than one <trkseg>: the schema allows it,
+		// so the array-typed field concatenates across every matching
+		// element instead of only reading the first.
+		const mappingWithExtra = {
+			seg: unwrap({
+				pt: array(
+					{ '@v': scalar({ expr: 'value' }) },
+					{ expr: 'points' }
+				),
+				label: scalar(),
+			}),
+		}
+
+		test('concatenates an array field across every matching element', () => {
+			const read: Record<string, unknown> = {}
+			readObject(
+				mappingWithExtra,
+				parseXml(
+					'<root><seg><pt v="1"/></seg><seg><pt v="2"/><pt v="3"/></seg></root>'
+				),
+				read
+			)
+			expect(read.points).toStrictEqual([
+				{ value: '1' },
+				{ value: '2' },
+				{ value: '3' },
+			])
+		})
+
+		test('fills a non-array field from a later element only if the first left it null', () => {
+			const read: Record<string, unknown> = {}
+			readObject(
+				mappingWithExtra,
+				parseXml(
+					'<root><seg><pt v="1"/></seg><seg><label>second</label></seg></root>'
+				),
+				read
+			)
+			// The first <seg> has no <label>, so the second's fills the gap.
+			expect(read.label).toBe('second')
+
+			const readFirstWins: Record<string, unknown> = {}
+			readObject(
+				mappingWithExtra,
+				parseXml(
+					'<root><seg><label>first</label></seg><seg><label>second</label></seg></root>'
+				),
+				readFirstWins
+			)
+			// The first <seg> already set it, so the second's is ignored.
+			expect(readFirstWins.label).toBe('first')
+		})
+	})
 })
 
 describe('custom fields', () => {

@@ -80,11 +80,31 @@ const LINK_FIELDS: ObjectMapping = {
 	type: scalar(),
 }
 
-const POINT_FIELDS: ObjectMapping = {
+// The GPX 1.1 XSD defines <wpt>, <trkpt>, and <rtept> as the same element
+// type (wptType), so they share one field mapping here. Point and Waypoint
+// are likewise the same TS type (see types.ts), rather than <trkpt>/<rtept>
+// only exposing a handful of wptType's fields.
+const WPT_TYPE_FIELDS: ObjectMapping = {
 	'@lat': scalar({ expr: 'latitude', type: 'float' }),
 	'@lon': scalar({ expr: 'longitude', type: 'float' }),
+	name: scalar(),
+	desc: scalar({ expr: 'description' }),
 	ele: scalar({ expr: 'elevation', type: 'floatOrNull' }),
 	time: scalar({ type: 'date' }),
+	cmt: scalar({ expr: 'comment' }),
+	sym: scalar({ expr: 'symbol' }),
+	magvar: scalar({ expr: 'magneticVariation', type: 'floatOrNull' }),
+	geoidheight: scalar({ expr: 'geoidHeight', type: 'floatOrNull' }),
+	src: scalar(),
+	link: array(LINK_FIELDS),
+	type: scalar(),
+	fix: scalar(),
+	sat: scalar({ expr: 'satellites', type: 'intOrNull' }),
+	hdop: scalar({ type: 'floatOrNull' }),
+	vdop: scalar({ type: 'floatOrNull' }),
+	pdop: scalar({ type: 'floatOrNull' }),
+	ageofdgpsdata: scalar({ expr: 'ageOfDgpsData', type: 'floatOrNull' }),
+	dgpsid: scalar({ expr: 'dgpsId', type: 'intOrNull' }),
 	extensions: custom(writeExtensions, readExtensions),
 }
 
@@ -116,35 +136,7 @@ export const GPX_MAPPING: ObjectMapping = {
 		}),
 		extensions: custom(writeExtensions, readExtensions),
 	}),
-	wpt: array(
-		{
-			'@lat': scalar({ expr: 'latitude', type: 'float' }),
-			'@lon': scalar({ expr: 'longitude', type: 'float' }),
-			name: scalar(),
-			desc: scalar({ expr: 'description' }),
-			ele: scalar({ expr: 'elevation', type: 'floatOrNull' }),
-			time: scalar({ type: 'date' }),
-			cmt: scalar({ expr: 'comment' }),
-			sym: scalar({ expr: 'symbol' }),
-			magvar: scalar({ expr: 'magneticVariation', type: 'floatOrNull' }),
-			geoidheight: scalar({ expr: 'geoidHeight', type: 'floatOrNull' }),
-			src: scalar(),
-			link: array(LINK_FIELDS),
-			type: scalar(),
-			fix: scalar(),
-			sat: scalar({ expr: 'satellites', type: 'intOrNull' }),
-			hdop: scalar({ type: 'floatOrNull' }),
-			vdop: scalar({ type: 'floatOrNull' }),
-			pdop: scalar({ type: 'floatOrNull' }),
-			ageofdgpsdata: scalar({
-				expr: 'ageOfDgpsData',
-				type: 'floatOrNull',
-			}),
-			dgpsid: scalar({ expr: 'dgpsId', type: 'intOrNull' }),
-			extensions: custom(writeExtensions, readExtensions),
-		},
-		{ expr: 'waypoints' }
-	),
+	wpt: array(WPT_TYPE_FIELDS, { expr: 'waypoints' }),
 	trk: array(
 		{
 			name: scalar(),
@@ -155,8 +147,15 @@ export const GPX_MAPPING: ObjectMapping = {
 			link: array(LINK_FIELDS),
 			type: scalar(),
 			extensions: custom(writeExtensions, readExtensions),
+			// A <trk> can have more than one <trkseg>; the mapping engine
+			// concatenates every matching <trkseg>'s points into `points`
+			// here (see the self-mapped-object handling in
+			// xml_object_mapping.ts). `segmentExtensions` only reflects the
+			// first <trkseg> that has an <extensions> element, since
+			// `points` has no notion of segment boundaries to hang more
+			// than one set of segment extensions off of.
 			trkseg: unwrap({
-				trkpt: array(POINT_FIELDS, { expr: 'points' }),
+				trkpt: array(WPT_TYPE_FIELDS, { expr: 'points' }),
 				extensions: custom(writeExtensions, readExtensions, {
 					expr: 'segmentExtensions',
 				}),
@@ -173,7 +172,7 @@ export const GPX_MAPPING: ObjectMapping = {
 			number: scalar(),
 			link: array(LINK_FIELDS),
 			type: scalar(),
-			rtept: array(POINT_FIELDS, { expr: 'points' }),
+			rtept: array(WPT_TYPE_FIELDS, { expr: 'points' }),
 			extensions: custom(writeExtensions, readExtensions),
 		},
 		{ expr: 'routes' }

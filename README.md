@@ -280,13 +280,7 @@ For specific type definition, see [types.ts](./lib/types.ts).
 
 ### Point
 
-| Property   | Type   | Description                               |
-| ---------- | ------ | ------------------------------------------ |
-| latitude   | Float  | Point latitude                            |
-| longitude  | Float  | Point longitude                           |
-| elevation  | Float  | Point elevation                           |
-| time       | Date   | Point time                                |
-| extensions | Object | Arbitrary extra data from `<extensions>`  |
+The GPX 1.1 XSD defines `<trkpt>`/`<rtept>` as the same element type as a standalone `<wpt>`, so `Point` (a track/route point) has the exact same fields as [Waypoint](#waypoint) above.
 
 ### Distance
 
