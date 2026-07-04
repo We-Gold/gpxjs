@@ -2,13 +2,13 @@ name: Publish Package to npm
 
 on:
     release:
-        types: [published] # Triggers when you create a GitHub release
+        types: [published] 
 
 jobs:
     publish:
         runs-on: ubuntu-latest
         permissions:
-            id-token: write # CRITICAL: Required for OIDC trusted publishing authentication
+            id-token: write
             contents: read
         steps:
             - name: Checkout repository
@@ -27,4 +27,4 @@ jobs:
               run: npm run build
 
             - name: Publish to npm
-              run: npm publish --provenance # Provenance links the package build back to this exact GH Action
+              run: npm publish --provenance
