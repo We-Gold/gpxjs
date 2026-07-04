@@ -19,14 +19,16 @@ test('All applied functions produce outputs without errors.', () => {
 	// Apply all functions to the first track
 	const [tdist, tdistError] = parsedGPX.applyToTrack(0, calculateDistance)
 	if (tdistError) throw tdistError
-	parsedGPX.applyToTrack(0, calculateDuration)
+	const [, tdurError] = parsedGPX.applyToTrack(0, calculateDuration, tdist)
+	if (tdurError) throw tdurError
 	parsedGPX.applyToTrack(0, calculateElevation)
 	parsedGPX.applyToTrack(0, calculateSlopes, tdist.cumulative)
 
 	// Apply all functions to the first route
 	const [rdist, rdistError] = parsedGPX.applyToRoute(0, calculateDistance)
 	if (rdistError) throw rdistError
-	parsedGPX.applyToRoute(0, calculateDuration)
+	const [, rdurError] = parsedGPX.applyToRoute(0, calculateDuration, rdist)
+	if (rdurError) throw rdurError
 	parsedGPX.applyToRoute(0, calculateElevation)
 	parsedGPX.applyToRoute(0, calculateSlopes, rdist.cumulative)
 })

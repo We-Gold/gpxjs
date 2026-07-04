@@ -12,6 +12,10 @@ Based on [GPXParser.js](https://github.com/Luuka/GPXParser.js), which has been u
 
 _I'm also open to any improvements or suggestions with the library, so feel free to leave an issue ([Contributing](#contribution))._
 
+> [!WARNING]
+> **Upgrading from 1.1.0 or earlier?** 1.2.0 includes four breaking changes (`link` fields are now arrays, `stringifyGPX`/`applyToTrack`/`applyToRoute` return `[result, error]` tuples instead of throwing, and `metadata.time` is now a `Date`). See [Migrating to 1.2.0](./docs/migration-1.2.0.md) before upgrading.
+
+
 ## GPX Schema
 
 The schema for GPX, a commonly used gps tracking format, can be found here: [GPX 1.1](https://www.topografix.com/gpx.asp).
