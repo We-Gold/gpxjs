@@ -103,7 +103,7 @@ export const testGPXFile = `<?xml version="1.0" encoding="UTF-8" ?>
 export const expectedMetadata: Partial<MetaData> = {
 	name: 'GPX Test',
 	description: 'Test Description',
-	time: '2020-01-12T21:32:52',
+	time: new Date('2020-01-12T21:32:52'),
 	link: [
 		{
 			href: 'https://test2.com',

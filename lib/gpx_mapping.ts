@@ -48,7 +48,7 @@ export function readExtensions(srcElem: Element): Extensions {
 
 	// Walk childNodes directly rather than Array.from(...).filter().forEach():
 	// this runs once per point on a track, and the intermediate array plus
-	// per-child closures were needless allocation (issue #32).
+	// per-child closures were needless allocation.
 	const children = srcElem.childNodes
 	for (let i = 0; i < children.length; i++) {
 		const child = children[i]
@@ -131,7 +131,7 @@ export const GPX_MAPPING: ObjectMapping = {
 			license: scalar(),
 		}),
 		link: array(LINK_FIELDS),
-		time: scalar(),
+		time: scalar({ type: 'date' }),
 		keywords: scalar(),
 		bounds: object({
 			'@minlat': scalar({ expr: 'minLatitude', type: 'floatOrNull' }),

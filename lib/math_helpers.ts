@@ -11,14 +11,35 @@ import type { Distance, Duration, Elevation, Options, Point } from './types'
 export type MathHelperFunction = (points: Point[], ...args: any[]) => any
 
 /**
+ * The extra (non-`points`) argument tuple of a specific `MathHelperFunction`,
+ * e.g. `[Distance, Options?]` for `calculateDuration`. Used to type
+ * `ParsedGPX.applyToTrack`/`applyToRoute` generically, so calling them with a
+ * specific helper (e.g. `calculateDistance`) infers concrete argument and
+ * return types instead of `any`.
+ */
+export type MathHelperArgs<F extends MathHelperFunction> = F extends (
+	points: Point[],
+	...args: infer A
+) => unknown
+	? A
+	: never
+
+/** Mean radius of the Earth, in meters, used by the haversine formula. */
+const EARTH_RADIUS_METERS = 6371000
+
+/**
+ * Size of the trailing window, in milliseconds, used to compute a point's
+ * average speed in `calculateDuration`.
+ */
+const AVERAGE_SPEED_WINDOW_MS = 10000
+
+/**
  * Calculates the distances along a series of points using the haversine formula internally.
  *
  * @param points An array containing points with latitudes and longitudes
  * @returns A distance object containing the total distance and the cumulative distances
  */
-export const calculateDistance: MathHelperFunction = (
-	points: Point[]
-): Distance => {
+export const calculateDistance = ((points: Point[]): Distance => {
 	const cumulativeDistance = [0]
 
 	// Incrementally calculate the distance between adjacent points until
@@ -33,7 +54,7 @@ export const calculateDistance: MathHelperFunction = (
 		cumulative: cumulativeDistance,
 		total: cumulativeDistance[cumulativeDistance.length - 1],
 	}
-}
+}) satisfies MathHelperFunction
 
 /**
  * Calculate the distance between two points with latitude and longitude
@@ -58,7 +79,7 @@ export const haversineDistance = (point1: Point, point2: Point): number => {
 		sinDeltaLatitude ** 2 +
 		Math.cos(lat1Radians) * Math.cos(lat2Radians) * sinDeltaLongitude ** 2
 	const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-	return 6371000 * c
+	return EARTH_RADIUS_METERS * c
 }
 
 /**
@@ -70,7 +91,7 @@ export const haversineDistance = (point1: Point, point2: Point): number => {
  * @returns A duration object
  */
 
-export const calculateDuration: MathHelperFunction = (
+export const calculateDuration = ((
 	points: Point[],
 	distance: Distance,
 	calculOptions: Options = DEFAULT_OPTIONS
@@ -98,7 +119,7 @@ export const calculateDuration: MathHelperFunction = (
 					const prevTime = points[j].time?.getTime()
 					if (prevTime !== undefined) {
 						const timeDiff = time.getTime() - prevTime
-						if (timeDiff > 10000) break // Only include last 10 seconds
+						if (timeDiff > AVERAGE_SPEED_WINDOW_MS) break
 						sumDistances +=
 							distance.cumulative[j + 1] - distance.cumulative[j]
 						sumTime += timeDiff
@@ -142,7 +163,7 @@ export const calculateDuration: MathHelperFunction = (
 		movingDuration: cumulative[cumulative.length - 1] / 1000, // Convert to seconds
 		totalDuration: totalDuration / 1000, // Convert to seconds
 	}
-}
+}) satisfies MathHelperFunction
 
 /**
  * Calculates details about the elevation of the given points.
@@ -151,9 +172,7 @@ export const calculateDuration: MathHelperFunction = (
  * @param points A list of points with an elevation
  * @returns An elevation object containing details about the elevation of the points
  */
-export const calculateElevation: MathHelperFunction = (
-	points: Point[]
-): Elevation => {
+export const calculateElevation = ((points: Point[]): Elevation => {
 	let dp = 0
 	let dn = 0
 	const elevation = []
@@ -194,7 +213,7 @@ export const calculateElevation: MathHelperFunction = (
 		negative: Math.abs(dn) || null,
 		average: elevation.length ? sum / elevation.length : null,
 	}
-}
+}) satisfies MathHelperFunction
 
 /**
  * Calculates the elevation grade as a percent between the adjacent points in the list.
@@ -204,7 +223,7 @@ export const calculateElevation: MathHelperFunction = (
  * @param cumulativeDistance A list of cumulative distances aquired through the `calculateDistance` method
  * @returns A list of slopes between the given points
  */
-export const calculateSlopes: MathHelperFunction = (
+export const calculateSlopes = ((
 	points: Point[],
 	cumulativeDistance: number[]
 ): number[] => {
@@ -226,4 +245,4 @@ export const calculateSlopes: MathHelperFunction = (
 	}
 
 	return slopes
-}
+}) satisfies MathHelperFunction

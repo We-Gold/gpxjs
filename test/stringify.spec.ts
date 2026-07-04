@@ -91,6 +91,13 @@ describe('stringfy', () => {
 	})
 })
 
+// The source fixture's metadata <time> has no UTC offset, so its Date
+// parsing (and the ISO string stringifyGPX writes back out) depends on the
+// local timezone the test runs in. Computing the expected value the same way
+// the library does keeps this assertion correct in any timezone, rather than
+// assuming the test runs in UTC.
+const EXPECTED_METADATA_TIME = new Date('2020-01-12T21:32:52').toISOString()
+
 const EXPECTED_XML = `<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="Test Creator">
   <metadata>
     <name>GPX Test</name>
@@ -111,7 +118,7 @@ const EXPECTED_XML = `<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.
       <text>General Website</text>
       <type>Web</type>
     </link>
-    <time>2020-01-12T21:32:52</time>
+    <time>${EXPECTED_METADATA_TIME}</time>
     <keywords>Test, gpx, file</keywords>
     <bounds minlat="49.12965660728301" minlon="-1.5521714646550901" maxlat="45.85097922514941" maxlon="4.336738935765406"/>
   </metadata>

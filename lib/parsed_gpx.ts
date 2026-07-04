@@ -1,4 +1,4 @@
-import type { MathHelperFunction } from './math_helpers'
+import type { MathHelperArgs, MathHelperFunction } from './math_helpers'
 import { removeEmptyFields } from './remove_empty_fields'
 import type {
 	Extensions,
@@ -139,11 +139,20 @@ export class ParsedGPX {
 			: GeoJSON
 	}
 
-	applyToTrack(
+	/**
+	 * Runs a math helper (e.g. `calculateDistance`) against a track's points.
+	 *
+	 * Generic over the specific helper `F` passed in, so the return type and
+	 * extra argument types (e.g. `Distance` for `calculateDistance`, or
+	 * `[Distance, Options?]` for `calculateDuration`) are inferred from
+	 * whichever function is passed, rather than widened to the shared
+	 * `MathHelperFunction` signature's `any`.
+	 */
+	applyToTrack<F extends MathHelperFunction>(
 		trackIndex: number,
-		func: MathHelperFunction,
-		...args: unknown[]
-	): [ReturnType<MathHelperFunction>, null] | [null, Error] {
+		func: F,
+		...args: MathHelperArgs<F>
+	): [ReturnType<F>, null] | [null, Error] {
 		// Ensure that the track index is valid
 		if (trackIndex < 0 || trackIndex >= this.tracks.length) {
 			return [null, new Error('The track index is out of bounds.')]
@@ -162,11 +171,12 @@ export class ParsedGPX {
 		}
 	}
 
-	applyToRoute(
+	/** Same as `applyToTrack`, but against a route's points. */
+	applyToRoute<F extends MathHelperFunction>(
 		routeIndex: number,
-		func: MathHelperFunction,
-		...args: unknown[]
-	): [ReturnType<MathHelperFunction>, null] | [null, Error] {
+		func: F,
+		...args: MathHelperArgs<F>
+	): [ReturnType<F>, null] | [null, Error] {
 		// Ensure that the route index is valid
 		if (routeIndex < 0 || routeIndex >= this.routes.length) {
 			return [null, new Error('The route index is out of bounds.')]

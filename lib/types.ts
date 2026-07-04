@@ -3,7 +3,7 @@ export type MetaData = {
 	description: string | null
 	link: Link[]
 	author: Author | null
-	time: string | null
+	time: Date | null
 	copyright: Copyright | null
 	keywords: string | null
 	bounds: Bounds | null
@@ -151,16 +151,26 @@ export type ParsedGPXInputs = {
 	creator: string | null
 }
 
+/** The subset of a Track/Route's own fields (excluding its points/stats) carried onto a GeoJSON Feature. */
+export type TrackOrRouteFeatureProperties = Pick<
+	Track,
+	'name' | 'comment' | 'description' | 'src' | 'number' | 'link' | 'type'
+>
+
 export type Feature = {
 	type: string
 	geometry: {
 		type: string
 		coordinates: (number | null)[][]
 	}
-	properties: {
-		[key: string]: string | number | Link | Link[] | null
-	}
+	properties: TrackOrRouteFeatureProperties
 }
+
+/** The subset of a Waypoint's own fields carried onto a GeoJSON point Feature. */
+export type WaypointFeatureProperties = Pick<
+	Waypoint,
+	'name' | 'symbol' | 'comment' | 'description'
+>
 
 export type WaypointFeature = {
 	type: string
@@ -168,9 +178,7 @@ export type WaypointFeature = {
 		type: string
 		coordinates: (number | null)[]
 	}
-	properties: {
-		[key: string]: string | number | Link | Link[] | null
-	}
+	properties: WaypointFeatureProperties
 }
 
 export type GeoJSON = {

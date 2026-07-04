@@ -4,7 +4,7 @@ Version 1.2.0 brings the parsed output in line with the full GPX 1.1 schema
 (issues #29, #34, #35) and makes the serialize/apply APIs return errors instead
 of throwing them (the same `[result, error]` convention `parseGPX` already
 uses). Most of the change is additive: fields the library used to drop are now
-parsed. There are three breaking changes to be aware of, described first.
+parsed. There are four breaking changes to be aware of, described first.
 
 ## At a glance
 
@@ -13,6 +13,7 @@ parsed. There are three breaking changes to be aware of, described first.
 | `link` fields are now `Link[]` instead of `Link \| null` | Breaking | Update reads of `.link` |
 | `stringifyGPX` returns a `[xml, error]` tuple instead of a `string` | Breaking | Destructure the result |
 | `applyToTrack` / `applyToRoute` return a `[result, error]` tuple and no longer throw | Breaking | Destructure the result, check `error` |
+| `metadata.time` is now a `Date` instead of a `string` | Breaking | Update reads of `metadata.time` |
 | `Point` is now an alias for `Waypoint` | Additive | None, more fields available |
 | New fields on `MetaData`, `Waypoint`, `Track`, `Route` | Additive | None |
 | `ParsedGPX` gained `version`, `creator`, root `extensions` | Additive | None |
@@ -78,6 +79,21 @@ if (error) throw error
 
 A custom serializer is still passed as the optional second argument:
 `stringifyGPX(gpx, new XMLSerializer())`.
+
+## Breaking: `metadata.time` is now a `Date`
+
+The GPX 1.1 XSD defines `metadata`'s `<time>` as the same `xsd:dateTime` type
+as a waypoint's or track/route point's `<time>`, which the library already
+parsed as a `Date`. `metadata.time` previously kept the raw string instead;
+it's now parsed the same way as every other `<time>` in the schema.
+
+```ts
+// Before (1.1.x)
+const year = gpx.metadata.time?.slice(0, 4)
+
+// After (1.2.0)
+const year = gpx.metadata.time?.getFullYear()
+```
 
 ## Breaking: `applyToTrack` / `applyToRoute` return a tuple
 
@@ -170,11 +186,12 @@ back to `version="1.1"` and `creator="gpxjs"` as before.
 
 ## Summary
 
-Three changes require action when upgrading from 1.1.x:
+Four changes require action when upgrading from 1.1.x:
 
 1. Read `link` fields as arrays (`link[0]?.href`).
 2. Destructure `stringifyGPX`'s `[xml, error]` result.
-3. Destructure `applyToTrack` / `applyToRoute`'s `[result, error]` result.
+3. Read `metadata.time` as a `Date` instead of a string.
+4. Destructure `applyToTrack` / `applyToRoute`'s `[result, error]` result.
 
 Everything else is additive and safe to adopt incrementally.
 
@@ -192,7 +209,8 @@ were removed or changed out, lines in green are new in 1.2.0.
 -	link: Link | null
 +	link: Link[]
  	author: Author | null
- 	time: string | null
+-	time: string | null
++	time: Date | null
 +	copyright: Copyright | null
 +	keywords: string | null
 +	bounds: Bounds | null
