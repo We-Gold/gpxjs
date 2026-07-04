@@ -15,7 +15,7 @@ import { readObject } from './xml_object_mapping'
  * Converts the given GPX XML to a JavaScript Object with the ability to convert to GeoJSON.
  *
  * @param gpxSource A string containing the source GPX XML
- * @param removeEmptyFields Whether or not to remove null or undefined fields from the output
+ * @param options Parsing options; see `Options` for details
  * @returns A ParsedGPX with all of the parsed data and a method to convert to GeoJSON
  */
 export const parseGPX = (
@@ -43,8 +43,8 @@ export const parseGPX = (
  * This uses a **custom** method supplied by the user. This is most applicable to non-browser environments.
  *
  * @param gpxSource A string containing the source GPX XML
- * @param parseGPXToXML An optional method that parses gpx to a usable XML format
- * @param removeEmptyFields Whether or not to remove null or undefined fields from the output
+ * @param parseGPXToXML A method that parses gpx to a usable XML format
+ * @param options Parsing options; see `Options` for details
  * @returns A ParsedGPX with all of the parsed data and a method to convert to GeoJSON
  */
 export const parseGPXWithCustomParser = (
@@ -64,7 +64,7 @@ export const parseGPXWithCustomParser = (
 		metadata: {
 			name: '',
 			description: '',
-			time: '',
+			time: null,
 			author: null,
 			link: [],
 			copyright: null,

@@ -37,7 +37,6 @@ describe.each(parsers)('parseGPX edge cases ($name)', ({ parse }) => {
 		expect(parsed.metadata).toStrictEqual({
 			name: '',
 			description: '',
-			time: '',
 			keywords: '',
 			link: [],
 		})

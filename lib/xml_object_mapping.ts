@@ -233,7 +233,7 @@ export function readObject(
 	// than re-scanning them for every field in the mapping. A single element
 	// (e.g. a track point) can have ~20 fields, so doing an independent
 	// child lookup per field turns parsing into O(fields * children) with a
-	// large constant, which dominated the xmldom-qsa parse time (issue #32).
+	// large constant, which dominated the xmldom-qsa parse time.
 	const childrenByTag = groupChildElements(srcElem)
 
 	for (const xmlName in mapping) {
@@ -424,7 +424,7 @@ function getElementValue(
  * own `<type>` versus its `<link><type>`. Grouping all children in a single
  * pass lets `readObject` look each field up by tag name instead of
  * re-scanning the children (or, worse, re-running a `querySelectorAll`) once
- * per field. See the note in `readObject` for why this matters (issue #32).
+ * per field. See the note in `readObject` for why this matters.
  *
  * @param parent A parent element to collect the children of
  * @returns A map from tag name to the matching direct child elements

@@ -23,7 +23,7 @@ export function removeEmptyFields<T>(value: T): T {
 	// + Object.fromEntries() is a more declarative way to write this, but it
 	// allocates an entries array, a `[key, value]` pair per field, and two more
 	// arrays before rebuilding the object; on a large track this runs once per
-	// point and showed up as a real share of parse time (issue #32).
+	// point and showed up as a real share of parse time.
 	const result: Record<string, unknown> = {}
 	for (const key of Object.keys(value)) {
 		const fieldValue = (value as Record<string, unknown>)[key]

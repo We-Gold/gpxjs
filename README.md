@@ -221,7 +221,7 @@ For specific type definition, see [types.ts](./lib/types.ts).
 | description | String           | Description                               |
 | link        | Array of Links   | Web addresses                             |
 | author      | Author object    | Author object                             |
-| time        | String           | Time                                      |
+| time        | Date             | Time                                      |
 | copyright   | Copyright object | Copyright holder and license              |
 | keywords    | String           | Comma-separated list of keywords          |
 | bounds      | Bounds object    | Minimum and maximum coordinates covered   |

@@ -10,6 +10,15 @@ import type { Distance, Duration, Elevation, Options, Point } from './types'
 // biome-ignore lint/suspicious/noExplicitAny: see comment above
 export type MathHelperFunction = (points: Point[], ...args: any[]) => any
 
+/** Mean radius of the Earth, in meters, used by the haversine formula. */
+const EARTH_RADIUS_METERS = 6371000
+
+/**
+ * Size of the trailing window, in milliseconds, used to compute a point's
+ * average speed in `calculateDuration`.
+ */
+const AVERAGE_SPEED_WINDOW_MS = 10000
+
 /**
  * Calculates the distances along a series of points using the haversine formula internally.
  *
@@ -58,7 +67,7 @@ export const haversineDistance = (point1: Point, point2: Point): number => {
 		sinDeltaLatitude ** 2 +
 		Math.cos(lat1Radians) * Math.cos(lat2Radians) * sinDeltaLongitude ** 2
 	const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-	return 6371000 * c
+	return EARTH_RADIUS_METERS * c
 }
 
 /**
@@ -98,7 +107,7 @@ export const calculateDuration: MathHelperFunction = (
 					const prevTime = points[j].time?.getTime()
 					if (prevTime !== undefined) {
 						const timeDiff = time.getTime() - prevTime
-						if (timeDiff > 10000) break // Only include last 10 seconds
+						if (timeDiff > AVERAGE_SPEED_WINDOW_MS) break
 						sumDistances +=
 							distance.cumulative[j + 1] - distance.cumulative[j]
 						sumTime += timeDiff

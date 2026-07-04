@@ -11,10 +11,6 @@ import {
 	testGPXFile,
 } from './test-gpx-file'
 
-// TODO: Noted inconsistencies while testing
-// Parse some times as dates and some as strings
-// Some items match abbreviations, some don't
-
 test('Default parsing returns expected result', () => {
 	const [parsedGPX, error] = parseGPX(testGPXFile)
 

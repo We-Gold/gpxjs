@@ -3,7 +3,7 @@ export type MetaData = {
 	description: string | null
 	link: Link[]
 	author: Author | null
-	time: string | null
+	time: Date | null
 	copyright: Copyright | null
 	keywords: string | null
 	bounds: Bounds | null
