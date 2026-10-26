@@ -188,7 +188,7 @@ export type GeoJSON = {
 }
 
 export type Extensions = {
-	[key: string]: string | number | Extensions
+	[key: string]: string | number | Extensions | Array<string | number | Extensions>
 }
 
 export type Options = {
