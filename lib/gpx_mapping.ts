@@ -25,48 +25,124 @@ export const GPX_NS = 'http://www.topografix.com/GPX/1/1'
  * read/write functions rather than a declarative field-by-field mapping.
  ****/
 
+function writeExtensionValue(
+	doc: Document,
+	value: string | number | Extensions | Array<string | number | Extensions>,
+	dstElem: Element
+) {
+	if (Array.isArray(value)) {
+		for (const item of value) {
+			writeExtensionValue(doc, item, dstElem)
+		}
+		return
+	}
+
+	if (typeof value === 'object' && value !== null) {
+		writeExtensions(doc, value as Extensions, dstElem)
+		return
+	}
+
+	const node = doc.createTextNode(value.toString())
+	dstElem.appendChild(node)
+}
+
 export function writeExtensions(
 	doc: Document,
 	srcObj: Extensions,
 	dstElem: Element
 ) {
 	for (const key in srcObj) {
+		const value = srcObj[key]
+		if (key.startsWith('@')) {
+			dstElem.setAttribute(key.slice(1), String(value))
+			continue
+		}
+
+		if (Array.isArray(value)) {
+			for (const item of value) {
+				const elem = doc.createElementNS(GPX_NS, key)
+				dstElem.appendChild(elem)
+				writeExtensionValue(doc, item, elem)
+			}
+			continue
+		}
+
 		const elem = doc.createElementNS(GPX_NS, key)
 		dstElem.appendChild(elem)
-		const value = srcObj[key]
-		if (typeof value === 'object') {
-			writeExtensions(doc, value, elem)
+		writeExtensionValue(doc, value, elem)
+	}
+}
+
+function readExtensionValue(child: Element): string | number | Extensions {
+	const attrs: Extensions = {}
+	for (let i = 0; i < child.attributes.length; i++) {
+		const attr = child.attributes[i]
+		attrs[`@${attr.name}`] = attr.value
+	}
+
+	if (child.childNodes.length === 0) {
+		return Object.keys(attrs).length > 0 ? attrs : {}
+	}
+
+	const childNodes = Array.from(child.childNodes)
+	const directText = childNodes.filter(
+		(node) => node.nodeType === 3 || node.nodeType === 4
+	)
+	const textValue = directText.map((node) => node.textContent ?? '').join('').trim()
+	if (childNodes.length === directText.length && textValue.length > 0) {
+		const value = Number.isNaN(+textValue) ? textValue : parseFloat(textValue)
+		if (Object.keys(attrs).length > 0) {
+			return { ...attrs, '#text': value }
+		}
+		return value
+	}
+
+	if (childNodes.length === directText.length && textValue.length === 0) {
+		return Object.keys(attrs).length > 0 ? attrs : {}
+	}
+
+	const nested: Extensions = {}
+	for (let i = 0; i < childNodes.length; i++) {
+		const node = childNodes[i]
+		if (node.nodeType !== 1) continue
+		const element = node as unknown as Element
+		const tagName = element.nodeName
+		const value = readExtensionValue(element)
+		const previous = nested[tagName]
+		if (previous === undefined) {
+			nested[tagName] = value
+		} else if (Array.isArray(previous)) {
+			previous.push(value)
 		} else {
-			const node = doc.createTextNode(value.toString())
-			elem.appendChild(node)
+			nested[tagName] = [previous, value]
 		}
 	}
+
+	if (Object.keys(attrs).length > 0) {
+		return { ...attrs, ...nested }
+	}
+
+	return nested
 }
 
 export function readExtensions(srcElem: Element): Extensions {
 	const extensions: Extensions = {}
 
-	// Walk childNodes directly rather than Array.from(...).filter().forEach():
-	// this runs once per point on a track, and the intermediate array plus
-	// per-child closures were needless allocation.
 	const children = srcElem.childNodes
 	for (let i = 0; i < children.length; i++) {
 		const child = children[i]
 		if (child.nodeType !== 1) continue
 
-		const tagName = child.nodeName
-		if (
-			child.childNodes?.length === 1 &&
-			child.childNodes[0].nodeType === 3 &&
-			child.childNodes[0].textContent
-		) {
-			const textContent = child.childNodes[0].textContent.trim()
-			const value = Number.isNaN(+textContent)
-				? textContent
-				: parseFloat(textContent)
+		const element = child as unknown as Element
+		const tagName = element.nodeName
+		const value = readExtensionValue(element)
+		const previous = extensions[tagName]
+		if (previous === undefined) {
 			extensions[tagName] = value
+		} else if (Array.isArray(previous)) {
+			previous.push(value)
 		} else {
-			extensions[tagName] = readExtensions(child as unknown as Element)
+			extensions[tagName] = [previous, value]
 		}
 	}
 
