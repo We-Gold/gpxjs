@@ -1,4 +1,4 @@
-import type { Extensions } from './types'
+import type { Extensions, ExtensionValue } from './types'
 import {
 	array,
 	custom,
@@ -25,128 +25,162 @@ export const GPX_NS = 'http://www.topografix.com/GPX/1/1'
  * read/write functions rather than a declarative field-by-field mapping.
  ****/
 
-function writeExtensionValue(
-	doc: Document,
-	value: string | number | Extensions | Array<string | number | Extensions>,
-	dstElem: Element
-) {
-	if (Array.isArray(value)) {
-		for (const item of value) {
-			writeExtensionValue(doc, item, dstElem)
-		}
-		return
-	}
-
-	if (typeof value === 'object' && value !== null) {
-		writeExtensions(doc, value as Extensions, dstElem)
-		return
-	}
-
-	const node = doc.createTextNode(value.toString())
-	dstElem.appendChild(node)
-}
+// Namespace that `xmlns`/`xmlns:*` declaration attributes live in.
+export const XMLNS_NS = 'http://www.w3.org/2000/xmlns/'
+const XML_NS = 'http://www.w3.org/XML/1998/namespace'
 
 export function writeExtensions(
 	doc: Document,
 	srcObj: Extensions,
 	dstElem: Element
 ) {
+	// Namespace declarations go first, so prefixed attributes and children
+	// below can resolve against them regardless of key order.
+	for (const key in srcObj) {
+		if (key === '@xmlns' || key.startsWith('@xmlns:')) {
+			dstElem.setAttributeNS(XMLNS_NS, key.slice(1), String(srcObj[key]))
+		}
+	}
+
 	for (const key in srcObj) {
 		const value = srcObj[key]
-		if (key.startsWith('@')) {
-			dstElem.setAttribute(key.slice(1), String(value))
-			continue
-		}
-
-		if (Array.isArray(value)) {
-			for (const item of value) {
-				const elem = doc.createElementNS(GPX_NS, key)
-				dstElem.appendChild(elem)
-				writeExtensionValue(doc, item, elem)
+		if (key === '#text') {
+			dstElem.appendChild(doc.createTextNode(String(value)))
+		} else if (key[0] === '@') {
+			const name = key.slice(1)
+			if (name === 'xmlns' || name.startsWith('xmlns:')) continue
+			const prefix = getPrefix(name)
+			if (prefix === null) {
+				dstElem.setAttribute(name, String(value))
+			} else {
+				const ns = lookupNamespace(dstElem, prefix) ?? GPX_NS
+				dstElem.setAttributeNS(ns, name, String(value))
 			}
-			continue
+		} else if (Array.isArray(value)) {
+			for (const item of value)
+				writeExtensionElement(doc, key, item, dstElem)
+		} else {
+			writeExtensionElement(doc, key, value, dstElem)
 		}
-
-		const elem = doc.createElementNS(GPX_NS, key)
-		dstElem.appendChild(elem)
-		writeExtensionValue(doc, value, elem)
 	}
 }
 
-function readExtensionValue(child: Element): string | number | Extensions {
-	const attrs: Extensions = {}
-	for (let i = 0; i < child.attributes.length; i++) {
-		const attr = child.attributes[i]
-		attrs[`@${attr.name}`] = attr.value
-	}
+function writeExtensionElement(
+	doc: Document,
+	name: string,
+	value: ExtensionValue,
+	dstElem: Element
+) {
+	// The element's own declaration (e.g. an inline xmlns:ns3 on a Garmin
+	// extension) wins over one inherited from an ancestor. An unresolvable
+	// prefix falls back to the GPX namespace so the output stays well-formed.
+	const prefix = getPrefix(name)
+	const ownDecl =
+		typeof value === 'object'
+			? value[prefix === null ? '@xmlns' : `@xmlns:${prefix}`]
+			: undefined
+	const ns =
+		typeof ownDecl === 'string'
+			? ownDecl
+			: prefix === null
+				? GPX_NS
+				: (lookupNamespace(dstElem, prefix) ?? GPX_NS)
 
-	if (child.childNodes.length === 0) {
-		return Object.keys(attrs).length > 0 ? attrs : {}
+	const elem = doc.createElementNS(ns, name)
+	dstElem.appendChild(elem)
+	if (typeof value === 'object') {
+		writeExtensions(doc, value, elem)
+	} else {
+		elem.appendChild(doc.createTextNode(value.toString()))
 	}
+}
 
-	const childNodes = Array.from(child.childNodes)
-	const directText = childNodes.filter(
-		(node) => node.nodeType === 3 || node.nodeType === 4
-	)
-	const textValue = directText.map((node) => node.textContent ?? '').join('').trim()
-	if (childNodes.length === directText.length && textValue.length > 0) {
-		const value = Number.isNaN(+textValue) ? textValue : parseFloat(textValue)
-		if (Object.keys(attrs).length > 0) {
-			return { ...attrs, '#text': value }
-		}
-		return value
+function getPrefix(name: string): string | null {
+	const colon = name.indexOf(':')
+	return colon === -1 ? null : name.slice(0, colon)
+}
+
+// Walks up from `elem` looking for an xmlns:prefix declaration. Done by hand
+// rather than with Node.lookupNamespaceURI, since xmldom-qsa doesn't see
+// declarations added with setAttributeNS.
+function lookupNamespace(elem: Element, prefix: string): string | null {
+	if (prefix === 'xml') return XML_NS
+	let node: Node | null = elem
+	while (node !== null && node.nodeType === 1) {
+		const ns = (node as Element).getAttributeNS(XMLNS_NS, prefix)
+		if (ns) return ns
+		node = node.parentNode
 	}
-
-	if (childNodes.length === directText.length && textValue.length === 0) {
-		return Object.keys(attrs).length > 0 ? attrs : {}
-	}
-
-	const nested: Extensions = {}
-	for (let i = 0; i < childNodes.length; i++) {
-		const node = childNodes[i]
-		if (node.nodeType !== 1) continue
-		const element = node as unknown as Element
-		const tagName = element.nodeName
-		const value = readExtensionValue(element)
-		const previous = nested[tagName]
-		if (previous === undefined) {
-			nested[tagName] = value
-		} else if (Array.isArray(previous)) {
-			previous.push(value)
-		} else {
-			nested[tagName] = [previous, value]
-		}
-	}
-
-	if (Object.keys(attrs).length > 0) {
-		return { ...attrs, ...nested }
-	}
-
-	return nested
+	return null
 }
 
 export function readExtensions(srcElem: Element): Extensions {
 	const extensions: Extensions = {}
 
+	const attributes = srcElem.attributes
+	for (let i = 0; i < attributes.length; i++) {
+		const attr = attributes[i]
+		extensions[`@${attr.name}`] = toScalar(attr.value)
+	}
+
+	// Walk childNodes directly rather than Array.from(...).filter().forEach():
+	// this runs once per point on a track, and the intermediate array plus
+	// per-child closures were needless allocation.
+	let text = ''
 	const children = srcElem.childNodes
 	for (let i = 0; i < children.length; i++) {
 		const child = children[i]
+		if (child.nodeType === 3 || child.nodeType === 4) {
+			text += child.nodeValue
+			continue
+		}
 		if (child.nodeType !== 1) continue
 
-		const element = child as unknown as Element
-		const tagName = element.nodeName
-		const value = readExtensionValue(element)
-		const previous = extensions[tagName]
-		if (previous === undefined) {
+		const tagName = child.nodeName
+		const value = readExtensionValue(child as unknown as Element)
+		const existing = extensions[tagName]
+		if (existing === undefined) {
 			extensions[tagName] = value
-		} else if (Array.isArray(previous)) {
-			previous.push(value)
+		} else if (Array.isArray(existing)) {
+			existing.push(value)
 		} else {
-			extensions[tagName] = [previous, value]
+			extensions[tagName] = [existing, value]
 		}
 	}
 
+	text = text.trim()
+	if (text) extensions['#text'] = toScalar(text)
+
 	return extensions
+}
+
+// Fast path for the common case of an element holding just text (e.g.
+// <gpxtpx:hr>140</gpxtpx:hr>), which collapses to a plain scalar.
+function readExtensionValue(elem: Element): ExtensionValue {
+	if (elem.attributes.length === 0) {
+		let text = ''
+		let hasElements = false
+		const children = elem.childNodes
+		for (let i = 0; i < children.length; i++) {
+			const type = children[i].nodeType
+			if (type === 1) {
+				hasElements = true
+				break
+			}
+			if (type === 3 || type === 4) text += children[i].nodeValue
+		}
+		if (!hasElements) {
+			text = text.trim()
+			return text ? toScalar(text) : {}
+		}
+	}
+	return readExtensions(elem)
+}
+
+function toScalar(text: string): string | number {
+	// +'' is 0, so check for empty first rather than let it become NaN below.
+	if (text === '') return text
+	return Number.isNaN(+text) ? text : parseFloat(text)
 }
 
 /****
