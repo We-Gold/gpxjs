@@ -198,6 +198,7 @@ export type Extensions = {
 	[key: string]: ExtensionValue | ExtensionValue[]
 }
 
+/** A single extension element: a text-only element's scalar, or a nested object. */
 export type ExtensionValue = string | number | Extensions
 
 export type Options = {

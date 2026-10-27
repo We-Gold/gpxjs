@@ -1,10 +1,13 @@
 import type { Extensions, ExtensionValue } from './types'
 import {
 	array,
+	CDATA_SECTION_NODE,
 	custom,
+	ELEMENT_NODE,
 	type ObjectMapping,
 	object,
 	scalar,
+	TEXT_NODE,
 	unwrap,
 } from './xml_object_mapping'
 
@@ -27,6 +30,7 @@ export const GPX_NS = 'http://www.topografix.com/GPX/1/1'
 
 // Namespace that `xmlns`/`xmlns:*` declaration attributes live in.
 export const XMLNS_NS = 'http://www.w3.org/2000/xmlns/'
+// Namespace of the built-in `xml:` prefix (e.g. xml:lang).
 const XML_NS = 'http://www.w3.org/XML/1998/namespace'
 
 export function writeExtensions(
@@ -44,15 +48,20 @@ export function writeExtensions(
 
 	for (const key in srcObj) {
 		const value = srcObj[key]
+		// `#text` and `@name` keys are the markers readExtensions uses for an
+		// element's own text and attributes; every other key is a child element.
 		if (key === '#text') {
 			dstElem.appendChild(doc.createTextNode(String(value)))
 		} else if (key[0] === '@') {
 			const name = key.slice(1)
+			// Already written by the loop above.
 			if (name === 'xmlns' || name.startsWith('xmlns:')) continue
 			const prefix = getPrefix(name)
 			if (prefix === null) {
 				dstElem.setAttribute(name, String(value))
 			} else {
+				// Same fallback as for elements: an unresolvable prefix is put in
+				// the GPX namespace so the output stays well-formed.
 				const ns = lookupNamespace(dstElem, prefix) ?? GPX_NS
 				dstElem.setAttributeNS(ns, name, String(value))
 			}
@@ -104,9 +113,10 @@ function getPrefix(name: string): string | null {
 // rather than with Node.lookupNamespaceURI, since xmldom-qsa doesn't see
 // declarations added with setAttributeNS.
 function lookupNamespace(elem: Element, prefix: string): string | null {
+	// `xml:` is bound by the XML spec itself and never declared in a file.
 	if (prefix === 'xml') return XML_NS
 	let node: Node | null = elem
-	while (node !== null && node.nodeType === 1) {
+	while (node !== null && node.nodeType === ELEMENT_NODE) {
 		const ns = (node as Element).getAttributeNS(XMLNS_NS, prefix)
 		if (ns) return ns
 		node = node.parentNode
@@ -130,11 +140,16 @@ export function readExtensions(srcElem: Element): Extensions {
 	const children = srcElem.childNodes
 	for (let i = 0; i < children.length; i++) {
 		const child = children[i]
-		if (child.nodeType === 3 || child.nodeType === 4) {
+		if (
+			child.nodeType === TEXT_NODE ||
+			child.nodeType === CDATA_SECTION_NODE
+		) {
 			text += child.nodeValue
 			continue
 		}
-		if (child.nodeType !== 1) continue
+		// Anything else that isn't an element (comments, processing
+		// instructions) carries no data, so it's skipped.
+		if (child.nodeType !== ELEMENT_NODE) continue
 
 		const tagName = child.nodeName
 		const value = readExtensionValue(child as unknown as Element)
@@ -163,11 +178,12 @@ function readExtensionValue(elem: Element): ExtensionValue {
 		const children = elem.childNodes
 		for (let i = 0; i < children.length; i++) {
 			const type = children[i].nodeType
-			if (type === 1) {
+			if (type === ELEMENT_NODE) {
 				hasElements = true
 				break
 			}
-			if (type === 3 || type === 4) text += children[i].nodeValue
+			if (type === TEXT_NODE || type === CDATA_SECTION_NODE)
+				text += children[i].nodeValue
 		}
 		if (!hasElements) {
 			text = text.trim()
@@ -178,7 +194,8 @@ function readExtensionValue(elem: Element): ExtensionValue {
 }
 
 function toScalar(text: string): string | number {
-	// +'' is 0, so check for empty first rather than let it become NaN below.
+	// +'' is 0 rather than NaN, so '' would pass the check below and then
+	// become NaN from parseFloat. Keep it as an empty string instead.
 	if (text === '') return text
 	return Number.isNaN(+text) ? text : parseFloat(text)
 }
