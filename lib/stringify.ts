@@ -1,4 +1,4 @@
-import { GPX_MAPPING, GPX_NS } from './gpx_mapping'
+import { GPX_MAPPING, GPX_NS, XMLNS_NS } from './gpx_mapping'
 import type { ParsedGPX } from './parsed_gpx'
 import { writeObject } from './xml_object_mapping'
 
@@ -20,6 +20,22 @@ export function stringifyGPX(
 ): [string, null] | [null, Error] {
 	try {
 		const doc = gpx.xml.implementation.createDocument(GPX_NS, 'gpx')
+		// Carry over the source file's prefixed namespace declarations (e.g.
+		// xmlns:gpxtpx), so prefixed extension elements are written back in
+		// their own namespace instead of the GPX one.
+		const srcRoot = gpx.xml.documentElement
+		if (srcRoot) {
+			for (let i = 0; i < srcRoot.attributes.length; i++) {
+				const attr = srcRoot.attributes[i]
+				if (attr.name.startsWith('xmlns:')) {
+					doc.documentElement.setAttributeNS(
+						XMLNS_NS,
+						attr.name,
+						attr.value
+					)
+				}
+			}
+		}
 		// version/creator fall back to sensible defaults when writing a
 		// ParsedGPX that wasn't parsed from an existing file (e.g. one built
 		// by hand), rather than writing an empty attribute.

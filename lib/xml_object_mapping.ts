@@ -19,6 +19,12 @@
  * looseness through `Record<string, unknown>` casts at every access site.
  */
 
+// DOM nodeType values. Defined here because the `Node` global these
+// normally come from (Node.ELEMENT_NODE etc.) doesn't exist outside browsers.
+export const ELEMENT_NODE = 1
+export const TEXT_NODE = 3
+export const CDATA_SECTION_NODE = 4
+
 /**
  * Coercions available for scalar fields when parsing XML into an object.
  * Writing never needs these, since the runtime type of a value (number,
@@ -439,7 +445,7 @@ function groupChildElements(parent: Element): Map<string, Element[]> {
 		// (rather than a CSS type selector) is namespace-insensitive in the
 		// same way the previous querySelectorAll-free fallback path was, which
 		// is what GPX's default-namespaced elements need.
-		if (node.nodeType !== 1) continue
+		if (node.nodeType !== ELEMENT_NODE) continue
 		const element = node as unknown as Element
 		const tag = element.tagName
 

@@ -187,9 +187,19 @@ export type GeoJSON = {
 	properties: MetaData
 }
 
+/**
+ * Arbitrary `<extensions>` content. Keys are element names (prefix
+ * included, e.g. `"gpxtpx:hr"`), plus `"@name"` for an element's attributes
+ * and `"#text"` for text alongside attributes or child elements. An element
+ * with only text collapses to a plain scalar, and a repeated sibling element
+ * becomes an array.
+ */
 export type Extensions = {
-	[key: string]: string | number | Extensions
+	[key: string]: ExtensionValue | ExtensionValue[]
 }
+
+/** A single extension element: a text-only element's scalar, or a nested object. */
+export type ExtensionValue = string | number | Extensions
 
 export type Options = {
 	removeEmptyFields: boolean

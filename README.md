@@ -363,3 +363,35 @@ The GPX 1.1 XSD defines `<trkpt>`/`<rtept>` as the same element type as a standa
 | minLongitude | Float | Minimum longitude of the file  |
 | maxLatitude  | Float | Maximum latitude of the file   |
 | maxLongitude | Float | Maximum longitude of the file  |
+
+### Extensions
+
+`<extensions>` has no fixed schema, so its content is kept as a plain object that mirrors the XML:
+
+- Child elements are keyed by tag name, prefix included (e.g. `gpxtpx:hr`).
+- An element with only text becomes a plain value, converted to a number when it is numeric.
+- Attributes are keyed as `@name`, and text alongside attributes or child elements is keyed as `#text`. XML names can't start with `@` or `#`, so these never collide with a child element, and `stringifyGPX` can write each back as the right kind of node.
+- An element that appears more than once under the same parent becomes an array.
+- Elements can nest to any depth, following the same rules at each level.
+- Text interleaved with child elements (e.g. `<a>one <b/> two</a>`) is joined into a single `#text`, so its position relative to those children isn't kept.
+
+```xml
+<extensions>
+  <gpxtpx:TrackPointExtension>
+    <gpxtpx:hr>140</gpxtpx:hr>
+  </gpxtpx:TrackPointExtension>
+  <wx:station kind="automatic" wx:sensor="5">
+    <wx:label>Summit Hut</wx:label>
+  </wx:station>
+  <wx:observer wx:badge="31"/>
+  <wx:observer wx:badge="48"/>
+</extensions>
+```
+
+```js
+{
+  "gpxtpx:TrackPointExtension": { "gpxtpx:hr": 140 },
+  "wx:station": { "@kind": "automatic", "@wx:sensor": 5, "wx:label": "Summit Hut" },
+  "wx:observer": [{ "@wx:badge": 31 }, { "@wx:badge": 48 }]
+}
+```
